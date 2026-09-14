@@ -84,7 +84,7 @@ export function AuthForm() {
         </button>
       </div>
 
-      <div className="mt-[18px] text-center text-[11px] tracking-[0.1em] text-ink-faint">
+      <div className="mt-4.5 text-center text-[11px] tracking-widest text-ink-faint">
         AL ENTRAR ACEPTAS LOS TÉRMINOS DEL SALÓN ARCADE
       </div>
     </div>
