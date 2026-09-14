@@ -37,16 +37,9 @@
 
 - **Causa:** `≡` (U+2261) no está en ningún subset de Press Start 2P. `next/font` añade `"Press Start 2P Fallback"` (Arial ajustada, cubre todo Unicode) antes de `system-ui`. En esa fuente el glifo mide 13.09px; en `system-ui`, que es lo que usa la plantilla, mide 6.84px.
 - **Corrección:** `font-[system-ui]` en el botón (`components/nav.tsx`).
-- **Verificación:** 50px de ancho y `scrollWidth` 395px, igual que la plantilla. `npm run lint` sin errores. `npm run build` no se ejecutó tras este cambio.
+- **Verificación:** 50px de ancho y `scrollWidth` 395px, igual que la plantilla. `npm run lint` y `npm run build` sin errores.
 
 ## Observaciones fuera de alcance
 
 - A 390px hay scroll horizontal (395px sobre una vista de 375px) en la plantilla y en la app: "Iniciar Sesión" y la hamburguesa no caben. Viene del diseño; si se cambia, irá en otra spec.
 - Solo se ha comparado la homepage. El resto de pantallas se validó con los criterios de aceptación de la spec.
-
-## Capturas
-
-| | Plantilla | App |
-|---|---|---|
-| Escritorio 1440×900 | ![Plantilla escritorio](img/01/ref-home.png) | ![App escritorio](img/01/app-home.png) |
-| Móvil 390×844 | ![Plantilla móvil](img/01/ref-home-mobile.png) | ![App móvil](img/01/app-home-mobile.png) |
