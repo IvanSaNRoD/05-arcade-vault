@@ -1,6 +1,6 @@
 # SPEC 01 — MVP visual: pantallas de Arcade Vault
 
-> **Status:** Borrador
+> **Status:** Aprobada
 > **Depends on:** —
 > **Date:** 2026-09-14
 > **Objective:** Implementar en Next.js App Router las 5 pantallas de la plantilla (Biblioteca, Detalle, Reproductor, Auth y Salón de la Fama) solo a nivel visual, con datos mock y sin juegos jugables.
@@ -129,12 +129,12 @@ Convenciones:
 
 ## Riesgos
 
-| Riesgo | Mitigación |
-| --- | --- |
-| Next 16 cambia APIs (`params`/`searchParams` como Promise, `PageProps`) | Leer `node_modules/next/dist/docs/01-app/` antes de crear rutas dinámicas y usar los helpers `PageProps<"/juegos/[id]">`. |
-| Error de hidratación por `Math.random` en el Reproductor | El intervalo solo corre en `useEffect` (cliente). El render inicial usa valores fijos (score 0). |
-| `toLocaleString("es-ES")` distinto entre servidor y cliente | Los datos son deterministas y Node incluye ICU completo. Verificar en consola que no hay warnings. |
-| Tilt 3D choca con el `:hover` de `.card` en CSS | Mismo enfoque que la plantilla: el estilo inline de `transform` sobrescribe el hover mientras hay movimiento y se limpia en `mouseleave`. |
+| Riesgo                                                                  | Mitigación                                                                                                                                |
+| ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Next 16 cambia APIs (`params`/`searchParams` como Promise, `PageProps`) | Leer `node_modules/next/dist/docs/01-app/` antes de crear rutas dinámicas y usar los helpers `PageProps<"/juegos/[id]">`.                 |
+| Error de hidratación por `Math.random` en el Reproductor                | El intervalo solo corre en `useEffect` (cliente). El render inicial usa valores fijos (score 0).                                          |
+| `toLocaleString("es-ES")` distinto entre servidor y cliente             | Los datos son deterministas y Node incluye ICU completo. Verificar en consola que no hay warnings.                                        |
+| Tilt 3D choca con el `:hover` de `.card` en CSS                         | Mismo enfoque que la plantilla: el estilo inline de `transform` sobrescribe el hover mientras hay movimiento y se limpia en `mouseleave`. |
 
 ## Lo que **no** está en esta spec
 
