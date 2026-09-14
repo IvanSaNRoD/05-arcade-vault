@@ -10,14 +10,8 @@ Arcade Vault: online platform to play games and compete for the highest score. C
 
 Workflow is Spec Driven Design via `/spec` and `/spec-impl` from [Klerith/fernando-skills](https://github.com/Klerith/fernando-skills) (install: `npx skills@latest add Klerith/fernando-skills`). Write a spec before implementing features.
 
-## Commands
-
-- `npm run dev` — dev server (also regenerates the `AGENTS.md` block)
-- `npm run build` — production build (also type-checks)
-- `npm run lint` — ESLint 9 flat config (`eslint.config.mjs`, `next/core-web-vitals` + `next/typescript`)
-- `npx tsc --noEmit` — type-check only
-
-No test framework is configured yet.
+## Skills
+Always use /drontend-design to design UI.
 
 ## Stack notes
 
