@@ -1,6 +1,6 @@
 # SPEC 01 — MVP visual: pantallas de Arcade Vault
 
-> **Status:** Aprobada
+> **Status:** Implementado
 > **Depends on:** —
 > **Date:** 2026-09-14
 > **Objective:** Implementar en Next.js App Router las 5 pantallas de la plantilla (Biblioteca, Detalle, Reproductor, Auth y Salón de la Fama) solo a nivel visual, con datos mock y sin juegos jugables.
@@ -89,25 +89,25 @@ Convenciones:
 
 ## Criterios de aceptación
 
-- [ ] `npm run build` y `npm run lint` terminan sin errores.
-- [ ] `/` muestra hero "ARCADE VAULT" y 8 cards de juego.
-- [ ] Escribir "ro" en la búsqueda deja solo ROCAS (búsqueda insensible a mayúsculas sobre `title`).
-- [ ] Chip SHOOTER muestra exactamente INVASORES y ROCAS; una búsqueda sin coincidencias muestra "NO HAY RESULTADOS".
-- [ ] Mover el ratón sobre una card la rota; al salir vuelve a su posición.
-- [ ] Click en card o en JUGAR navega a `/juegos/<id>`.
-- [ ] `/juegos/<id>` muestra título, tags, stat-strip y leaderboard de 10 filas con top 3 en oro, plata y bronce.
-- [ ] "JUGAR AHORA" navega a `/juegos/<id>/jugar`; "VOLVER AL VAULT" navega a `/`.
-- [ ] `/juegos/xyz` y `/juegos/xyz/jugar` muestran la 404 temática con botón a `/`.
-- [ ] En el Reproductor la puntuación aumenta sola; PAUSA la detiene y muestra "EN PAUSA"; REANUDAR la continúa.
-- [ ] FIN abre el modal con la puntuación final; GUARDAR PUNTUACIÓN oculta el input y muestra el toast; JUGAR DE NUEVO pone puntuación a 0, vidas a 3 y nivel a 01.
-- [ ] SALIR del Reproductor navega a `/juegos/<id>`.
-- [ ] En `/auth` la tab CREAR CUENTA muestra el campo "Correo electrónico"; INICIAR SESIÓN lo oculta.
-- [ ] Enviar el formulario o pulsar "JUGAR COMO INVITADO" navega a `/`.
-- [ ] `/salon` muestra BLOQUE BUSTER por defecto; `/salon?juego=caida` marca el chip CAÍDA y cambia podio y tabla.
-- [ ] `/salon?juego=xyz` cae a BLOQUE BUSTER sin error.
-- [ ] El link del Nav activo es Biblioteca en `/`, `/juegos/*` y `/juegos/*/jugar`, y Salón de la Fama en `/salon`.
-- [ ] A menos de 840px los links del Nav se ocultan y la hamburguesa abre el panel lateral; click en backdrop o en un link lo cierra.
-- [ ] La consola del navegador no muestra errores de hidratación en ninguna ruta.
+- [x] `npm run build` y `npm run lint` terminan sin errores.
+- [x] `/` muestra hero "ARCADE VAULT" y 8 cards de juego.
+- [x] Escribir "ro" en la búsqueda deja solo ROCAS (búsqueda insensible a mayúsculas sobre `title`).
+- [x] Chip SHOOTER muestra exactamente INVASORES y ROCAS; una búsqueda sin coincidencias muestra "NO HAY RESULTADOS".
+- [x] Mover el ratón sobre una card la rota; al salir vuelve a su posición.
+- [x] Click en card o en JUGAR navega a `/juegos/<id>`.
+- [x] `/juegos/<id>` muestra título, tags, stat-strip y leaderboard de 10 filas con top 3 en oro, plata y bronce.
+- [x] "JUGAR AHORA" navega a `/juegos/<id>/jugar`; "VOLVER AL VAULT" navega a `/`.
+- [x] `/juegos/xyz` y `/juegos/xyz/jugar` muestran la 404 temática con botón a `/`.
+- [x] En el Reproductor la puntuación aumenta sola; PAUSA la detiene y muestra "EN PAUSA"; REANUDAR la continúa.
+- [x] FIN abre el modal con la puntuación final; GUARDAR PUNTUACIÓN oculta el input y muestra el toast; JUGAR DE NUEVO pone puntuación a 0, vidas a 3 y nivel a 01.
+- [x] SALIR del Reproductor navega a `/juegos/<id>`.
+- [x] En `/auth` la tab CREAR CUENTA muestra el campo "Correo electrónico"; INICIAR SESIÓN lo oculta.
+- [x] Enviar el formulario o pulsar "JUGAR COMO INVITADO" navega a `/`.
+- [x] `/salon` muestra BLOQUE BUSTER por defecto; `/salon?juego=caida` marca el chip CAÍDA y cambia podio y tabla.
+- [x] `/salon?juego=xyz` cae a BLOQUE BUSTER sin error.
+- [x] El link del Nav activo es Biblioteca en `/`, `/juegos/*` y `/juegos/*/jugar`, y Salón de la Fama en `/salon`.
+- [x] A menos de 840px los links del Nav se ocultan y la hamburguesa abre el panel lateral; click en backdrop o en un link lo cierra.
+- [x] La consola del navegador no muestra errores de hidratación en ninguna ruta.
 
 ## Decisiones
 
