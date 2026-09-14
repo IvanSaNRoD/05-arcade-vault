@@ -38,7 +38,8 @@ export function Nav() {
         <Link href="/auth" className="btn auth-btn">
           Iniciar Sesión
         </Link>
-        <button className="btn ghost hamburger" onClick={() => setOpen(true)} aria-label="Menú">
+        {/* "≡" is outside Press Start 2P subsets; next/font's metric fallback renders it wider than the template's system-ui. */}
+        <button className="btn ghost hamburger font-[system-ui]" onClick={() => setOpen(true)} aria-label="Menú">
           ≡
         </button>
       </nav>
