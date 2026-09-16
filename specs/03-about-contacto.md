@@ -1,6 +1,6 @@
 # SPEC 03 — Página "Acerca de" + envío de correo con Resend
 
-> **Status:** Aprobado
+> **Status:** Implementado
 > **Depends on:** SPEC 02
 > **Date:** 2026-09-16
 > **Objective:** Implementar `/acerca-de` con la plantilla `home-about/about.jsx` (About + formulario de contacto) y enviar el formulario por email real usando Resend, con la API key fuera del repositorio.
@@ -59,17 +59,17 @@ type ContactResult =
 
 ## Criterios de aceptación
 
-- [ ] `npm run build` y `npm run lint` terminan sin errores.
-- [ ] `/acerca-de` muestra el título "ACERCA DE ARCADE VAULT", el texto de misión y 3 highlights (corazón, browser, planta).
-- [ ] La sección de contacto muestra el formulario con campos Nombre, Correo Electrónico y Mensaje.
-- [ ] Enviar el formulario con campos vacíos activa el shake y no llama al Server Action.
-- [ ] Enviar el formulario con un email con formato inválido (ej. `abc`) muestra error de validación sin llamar a Resend.
-- [ ] Enviar el formulario con datos válidos llama a Resend y, si el envío tiene éxito, llega un correo real a `CONTACT_EMAIL` y la UI muestra el `terminal-success` con el nombre en mayúsculas.
-- [ ] Si Resend falla (ej. API key inválida), la UI muestra un estado de error legible y permite reintentar sin perder lo escrito en el formulario.
-- [ ] `RESEND_API_KEY` no aparece en ningún archivo trackeado por git (`git grep RESEND_API_KEY` solo encuentra `.env.example` sin valor y referencias a `process.env.RESEND_API_KEY` en código).
-- [ ] Nav: "Acerca de" aparece en barra y panel móvil, activo solo en `/acerca-de`.
-- [ ] A 400px de ancho `/acerca-de` no tiene scroll horizontal; `contact-grid` pasa a 1 columna.
-- [ ] La consola del navegador no muestra errores de hidratación en `/acerca-de`.
+- [x] `npm run build` y `npm run lint` terminan sin errores.
+- [x] `/acerca-de` muestra el título "ACERCA DE ARCADE VAULT", el texto de misión y 3 highlights (corazón, browser, planta).
+- [x] La sección de contacto muestra el formulario con campos Nombre, Correo Electrónico y Mensaje.
+- [x] Enviar el formulario con campos vacíos activa el shake y no llama al Server Action.
+- [x] Enviar el formulario con un email con formato inválido (ej. `abc`) muestra error de validación sin llamar a Resend.
+- [x] Enviar el formulario con datos válidos llama a Resend y, si el envío tiene éxito, llega un correo real a `CONTACT_EMAIL` y la UI muestra el `terminal-success` con el nombre en mayúsculas.
+- [x] Si Resend falla (ej. API key inválida), la UI muestra un estado de error legible y permite reintentar sin perder lo escrito en el formulario.
+- [x] `RESEND_API_KEY` no aparece en ningún archivo trackeado por git (`git grep RESEND_API_KEY` solo encuentra `.env.example` sin valor y referencias a `process.env.RESEND_API_KEY` en código).
+- [x] Nav: "Acerca de" aparece en barra y panel móvil, activo solo en `/acerca-de`.
+- [x] A 400px de ancho `/acerca-de` no tiene scroll horizontal; `contact-grid` pasa a 1 columna.
+- [x] La consola del navegador no muestra errores de hidratación en `/acerca-de`.
 
 ## Decisiones
 
