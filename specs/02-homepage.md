@@ -1,6 +1,6 @@
 # SPEC 02 — Homepage de Arcade Vault
 
-> **Status:** Borrador
+> **Status:** Aprobado
 > **Depends on:** SPEC 01
 > **Date:** 2026-09-16
 > **Objective:** Implementar en `/` la landing page de la plantilla `home-about` (solo visual, datos mock) y mover la Biblioteca a `/juegos`.
@@ -102,12 +102,12 @@ Convenciones:
 
 ## Riesgos
 
-| Riesgo                                                          | Mitigación                                                                                                   |
-| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| Clases de `styles.css` que ya existen en `globals.css` con otro valor | Antes de pegar cada bloque, `grep` de cada selector en `globals.css`; no duplicar ni sobrescribir los existentes. |
-| `.reveal` con opacidad 0 deja secciones invisibles si el JS falla | `<Reveal>` es mínimo y sin dependencias; reduced-motion las muestra siempre. Verificar en consola sin errores. |
-| Keyframes `float`/`bounce` colisionan con nombres de Tailwind o existentes | Comprobar con `grep "@keyframes"` en `globals.css`; renombrar con prefijo `home-` si hay colisión.          |
-| Enlaces a `/` olvidados tras mover la Biblioteca                | Paso 2 incluye `grep` explícito de `href="/"` y `push("/")`.                                                 |
+| Riesgo                                                                     | Mitigación                                                                                                        |
+| -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Clases de `styles.css` que ya existen en `globals.css` con otro valor      | Antes de pegar cada bloque, `grep` de cada selector en `globals.css`; no duplicar ni sobrescribir los existentes. |
+| `.reveal` con opacidad 0 deja secciones invisibles si el JS falla          | `<Reveal>` es mínimo y sin dependencias; reduced-motion las muestra siempre. Verificar en consola sin errores.    |
+| Keyframes `float`/`bounce` colisionan con nombres de Tailwind o existentes | Comprobar con `grep "@keyframes"` en `globals.css`; renombrar con prefijo `home-` si hay colisión.                |
+| Enlaces a `/` olvidados tras mover la Biblioteca                           | Paso 2 incluye `grep` explícito de `href="/"` y `push("/")`.                                                      |
 
 ## Lo que **no** está en esta spec
 
