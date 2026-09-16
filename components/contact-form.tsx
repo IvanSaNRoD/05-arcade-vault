@@ -44,7 +44,7 @@ export function ContactForm() {
   const retry = () => setStatus("idle");
 
   return (
-    <form className={"contact-form" + (shake ? " shake" : "")} onSubmit={onSubmit}>
+    <form className={"contact-form" + (shake ? " shake" : "")} onSubmit={onSubmit} noValidate>
       {status === "sent" ? (
         <div className="terminal-success">
           <div className="term-bar">
