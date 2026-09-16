@@ -1,6 +1,6 @@
 # SPEC 03 — Página "Acerca de" + envío de correo con Resend
 
-> **Status:** Draft
+> **Status:** Aprobado
 > **Depends on:** SPEC 02
 > **Date:** 2026-09-16
 > **Objective:** Implementar `/acerca-de` con la plantilla `home-about/about.jsx` (About + formulario de contacto) y enviar el formulario por email real usando Resend, con la API key fuera del repositorio.
@@ -86,12 +86,12 @@ type ContactResult =
 
 ## Riesgos
 
-| Riesgo                                                          | Mitigación                                                                                          |
-| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `RESEND_API_KEY` termina commiteada por error                   | `.env*` ya está en `.gitignore`; paso 1 verifica con `git status` antes de continuar.                 |
-| Resend rechaza el envío por usar `onboarding@resend.dev` a un dominio no autorizado | Confirmar en el dashboard de Resend que `CONTACT_EMAIL` es una dirección permitida en modo test antes del paso 3. |
-| Formulario sin protección anti-spam recibe spam en producción   | Fuera de scope aquí; documentado como riesgo conocido para una spec futura (honeypot o captcha).       |
-| Clases CSS de `styles.css` About ya existen en `globals.css` con otro valor | Antes de pegar el bloque del paso 6, `grep` de cada selector (`.about`, `.contact-*`, `.terminal-success`, `.term-*`) en `globals.css`. |
+| Riesgo                                                                              | Mitigación                                                                                                                              |
+| ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `RESEND_API_KEY` termina commiteada por error                                       | `.env*` ya está en `.gitignore`; paso 1 verifica con `git status` antes de continuar.                                                   |
+| Resend rechaza el envío por usar `onboarding@resend.dev` a un dominio no autorizado | Confirmar en el dashboard de Resend que `CONTACT_EMAIL` es una dirección permitida en modo test antes del paso 3.                       |
+| Formulario sin protección anti-spam recibe spam en producción                       | Fuera de scope aquí; documentado como riesgo conocido para una spec futura (honeypot o captcha).                                        |
+| Clases CSS de `styles.css` About ya existen en `globals.css` con otro valor         | Antes de pegar el bloque del paso 6, `grep` de cada selector (`.about`, `.contact-*`, `.terminal-success`, `.term-*`) en `globals.css`. |
 
 ## Lo que **no** está en esta spec
 
