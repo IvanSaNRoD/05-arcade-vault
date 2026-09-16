@@ -70,19 +70,19 @@ Convenciones:
 
 ## Criterios de aceptación
 
-- [ ] `npm run build` y `npm run lint` terminan sin errores.
-- [ ] `/` muestra el título "EL ARCADE / CLÁSICO ESTÁ / DE VUELTA", 8 siluetas flotantes y los botones "EXPLORAR JUEGOS" y "CREAR CUENTA".
-- [ ] `/` muestra 4 feature cards, 6 mini-cards, 3 stats, 7 filas de últimas puntuaciones, 5 top jugadores con #01–#03 destacados, la tarjeta de precio "$0" con 6 ventajas, 3 FAQ y el CTA "¿LISTO PARA JUGAR?".
-- [ ] Click en una mini-card navega a `/juegos/<id>`.
-- [ ] "EXPLORAR JUEGOS", "VER TODOS LOS JUEGOS" e "INSERTAR MONEDA" navegan a `/juegos`; "CREAR CUENTA" y "EMPEZAR GRATIS" a `/auth`; "VER SALÓN" a `/salon`.
-- [ ] Las secciones con `.reveal` empiezan ocultas y aparecen al entrar en viewport.
-- [ ] Con `prefers-reduced-motion: reduce` emulado, todas las secciones son visibles sin scroll previo.
-- [ ] `/juegos` muestra la Biblioteca de SPEC 01 con búsqueda, chips y 8 cards.
-- [ ] Nav: "Inicio" activo solo en `/`; "Biblioteca" activo en `/juegos`, `/juegos/<id>` y `/juegos/<id>/jugar`; no aparece "Acerca de".
-- [ ] El panel móvil (<840px) incluye "Inicio" y "Biblioteca" con el mismo estado activo.
-- [ ] "VOLVER AL VAULT", "VOLVER A LA BIBLIOTECA", el botón de la 404, el botón magenta del modal del Reproductor, el submit de Auth y "JUGAR COMO INVITADO" navegan a `/juegos`.
-- [ ] A 400px de ancho la home no tiene scroll horizontal y las grillas pasan a 1–2 columnas.
-- [ ] La consola del navegador no muestra errores de hidratación en `/` ni en `/juegos`.
+- [x] `npm run build` y `npm run lint` terminan sin errores.
+- [x] `/` muestra el título "EL ARCADE / CLÁSICO ESTÁ / DE VUELTA", 8 siluetas flotantes y los botones "EXPLORAR JUEGOS" y "CREAR CUENTA".
+- [x] `/` muestra 4 feature cards, 6 mini-cards, 3 stats, 7 filas de últimas puntuaciones, 5 top jugadores con #01–#03 destacados, la tarjeta de precio "$0" con 6 ventajas, 3 FAQ y el CTA "¿LISTO PARA JUGAR?".
+- [x] Click en una mini-card navega a `/juegos/<id>`.
+- [x] "EXPLORAR JUEGOS", "VER TODOS LOS JUEGOS" e "INSERTAR MONEDA" navegan a `/juegos`; "CREAR CUENTA" y "EMPEZAR GRATIS" a `/auth`; "VER SALÓN" a `/salon`.
+- [x] Las secciones con `.reveal` empiezan ocultas y aparecen al entrar en viewport.
+- [x] Con `prefers-reduced-motion: reduce` emulado, todas las secciones son visibles sin scroll previo.
+- [x] `/juegos` muestra la Biblioteca de SPEC 01 con búsqueda, chips y 8 cards.
+- [x] Nav: "Inicio" activo solo en `/`; "Biblioteca" activo en `/juegos`, `/juegos/<id>` y `/juegos/<id>/jugar`; no aparece "Acerca de".
+- [x] El panel móvil (<840px) incluye "Inicio" y "Biblioteca" con el mismo estado activo.
+- [x] "VOLVER AL VAULT", "VOLVER A LA BIBLIOTECA", el botón de la 404, el botón magenta del modal del Reproductor, el submit de Auth y "JUGAR COMO INVITADO" navegan a `/juegos`.
+- [x] A 400px de ancho la home no tiene scroll horizontal y las grillas pasan a 1–2 columnas.
+- [x] La consola del navegador no muestra errores de hidratación en `/` ni en `/juegos`.
 
 ## Decisiones
 
