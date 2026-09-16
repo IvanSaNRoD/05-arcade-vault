@@ -1,6 +1,6 @@
 # SPEC 02 — Homepage de Arcade Vault
 
-> **Status:** Aprobado
+> **Status:** Implementada
 > **Depends on:** SPEC 01
 > **Date:** 2026-09-16
 > **Objective:** Implementar en `/` la landing page de la plantilla `home-about` (solo visual, datos mock) y mover la Biblioteca a `/juegos`.
