@@ -73,7 +73,7 @@ export function HallOfFame({ game }: { game: Game }) {
       </div>
 
       <div className="mt-8 text-center">
-        <Link href="/" className="btn lg">
+        <Link href="/juegos" className="btn lg">
           VOLVER A LA BIBLIOTECA
         </Link>
       </div>

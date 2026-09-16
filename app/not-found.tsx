@@ -6,7 +6,7 @@ export default function NotFound() {
       <div className="code flicker">404</div>
       <h1 className="pixel neon-cyan">PANTALLA NO ENCONTRADA</h1>
       <p>Este juego o página no está en el vault. Vuelve a la biblioteca y elige otro.</p>
-      <Link href="/" className="btn lg">
+      <Link href="/juegos" className="btn lg">
         VOLVER A LA BIBLIOTECA
       </Link>
     </section>
