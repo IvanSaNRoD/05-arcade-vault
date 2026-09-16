@@ -15,7 +15,7 @@ export function AuthForm() {
   // Visual-only auth: no session is created, both actions just go back to the library.
   const submit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    router.push("/");
+    router.push("/juegos");
   };
 
   return (
@@ -70,7 +70,7 @@ export function AuthForm() {
         </button>
       </form>
 
-      <button type="button" className="btn ghost mt-2.5 w-full" onClick={() => router.push("/")}>
+      <button type="button" className="btn ghost mt-2.5 w-full" onClick={() => router.push("/juegos")}>
         JUGAR COMO INVITADO
       </button>
 
