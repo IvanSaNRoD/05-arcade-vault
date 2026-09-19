@@ -47,14 +47,14 @@ Esta spec no introduce modelo de datos: no crea tablas, tipos de dominio ni regi
 
 ## Criterios de aceptación
 
-- [ ] `.env.local` contiene `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, y sigue ignorado por git.
-- [ ] Existen `lib/supabase/client.ts`, `lib/supabase/server.ts`, `lib/supabase/proxy.ts` y `proxy.ts` en la raíz del proyecto.
-- [ ] `npx tsc --noEmit` no reporta errores nuevos atribuibles a estos archivos.
-- [ ] `npm run lint` termina sin errores en los archivos nuevos.
-- [ ] `npm run dev` arranca y las rutas existentes (`/`, `/juegos`, `/auth`, `/salon`) siguen cargando sin cambios visuales.
-- [ ] Una llamada read-only (`auth.getSession()` o `auth.getUser()`) contra el proyecto Supabase configurado responde sin error de conexión/credenciales.
-- [ ] `mcp__supabase__list_tables` (o `list_migrations`) muestra el mismo estado que antes de esta spec: sin tablas nuevas ni migraciones aplicadas.
-- [ ] `components/auth-form.tsx` sigue sin llamar a Supabase (visual-only, sin cambios).
+- [x] `.env.local` contiene `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, y sigue ignorado por git.
+- [x] Existen `lib/supabase/client.ts`, `lib/supabase/server.ts`, `lib/supabase/proxy.ts` y `proxy.ts` en la raíz del proyecto.
+- [x] `npx tsc --noEmit` no reporta errores nuevos atribuibles a estos archivos.
+- [x] `npm run lint` termina sin errores en los archivos nuevos.
+- [x] `npm run dev` arranca y las rutas existentes (`/`, `/juegos`, `/auth`, `/salon`) siguen cargando sin cambios visuales.
+- [x] Una llamada read-only (`auth.getSession()` o `auth.getUser()`) contra el proyecto Supabase configurado responde sin error de conexión/credenciales.
+- [x] `mcp__supabase__list_tables` (o `list_migrations`) muestra el mismo estado que antes de esta spec: sin tablas nuevas ni migraciones aplicadas.
+- [x] `components/auth-form.tsx` sigue sin llamar a Supabase (visual-only, sin cambios).
 
 ## Decisiones
 
