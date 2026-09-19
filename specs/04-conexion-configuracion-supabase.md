@@ -1,6 +1,6 @@
 # SPEC 04 — Conexión y configuración de Supabase
 
-> **Status:** Aprobada
+> **Status:** Implementado
 > **Depends on:** —
 > **Date:** 2026-09-19
 > **Objective:** Configurar los clientes de Supabase (browser, server, proxy) y las variables de entorno necesarias para habilitar DB y Auth, sin crear, modificar ni escribir tablas en la base de datos.
