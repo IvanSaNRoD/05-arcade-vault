@@ -1,3 +1,5 @@
+import { createClient } from "@/lib/supabase/server";
+
 export type Category = "ARCADE" | "PUZZLE" | "SHOOTER" | "VERSUS";
 export type GameColor = "cyan" | "magenta" | "yellow" | "green";
 
@@ -13,99 +15,71 @@ export interface Game {
   plays: string;
 }
 
-export const GAMES: Game[] = [
-  {
-    id: "bloque-buster",
-    title: "BLOQUE BUSTER",
-    short: "Rebota la pelota y destruye muros de neón.",
-    long: "Pilota una nave-paleta y rebota un núcleo de plasma para pulverizar muros de bloques cromáticos. Cada nivel reorganiza la grilla en patrones imposibles. ¿Hasta dónde llegará tu racha?",
-    category: "ARCADE",
-    cover: "cover-bricks",
-    color: "cyan",
-    best: 28450,
-    plays: "12.4K",
-  },
-  {
-    id: "caida",
-    title: "CAÍDA",
-    short: "Encaja las piezas antes de que el techo te aplaste.",
-    long: "Piezas geométricas descienden desde la oscuridad. Rótalas, encástralas y limpia líneas para sobrevivir. La velocidad aumenta sin piedad cada 10 líneas.",
-    category: "PUZZLE",
-    cover: "cover-tetro",
-    color: "magenta",
-    best: 184220,
-    plays: "31.8K",
-  },
-  {
-    id: "serpentina",
-    title: "SERPENTINA",
-    short: "Crece sin morder tu propia cola.",
-    long: "Una serpiente de luz recorre la grilla buscando núcleos magenta. Cada bocado la alarga y la hace más veloz. Un movimiento en falso y se devora a sí misma.",
-    category: "ARCADE",
-    cover: "cover-snake",
-    color: "green",
-    best: 7820,
-    plays: "9.1K",
-  },
-  {
-    id: "gloton",
-    title: "GLOTÓN",
-    short: "Devora puntos y escapa de los fantasmas.",
-    long: "Un círculo glotón patrulla un laberinto coleccionando puntos luminosos. Cuatro espectros lo persiguen, pero cada cierto tiempo aparece una píldora que invierte los papeles.",
-    category: "ARCADE",
-    cover: "cover-glot",
-    color: "yellow",
-    best: 96400,
-    plays: "27.2K",
-  },
-  {
-    id: "invasores",
-    title: "INVASORES",
-    short: "Defiende el planeta de filas alienígenas.",
-    long: "Olas de pixeles hostiles descienden formación tras formación. Mueve tu cañón en horizontal y abre fuego con precisión, antes de que toquen la superficie.",
-    category: "SHOOTER",
-    cover: "cover-invaders",
-    color: "green",
-    best: 54190,
-    plays: "18.0K",
-  },
-  {
-    id: "asteroids",
-    title: "ASTEROIDS",
-    short: "Pulveriza asteroides en gravedad cero.",
-    long: "Tu nave triangular flota en vacío absoluto. Dispara y rota para dividir rocas en fragmentos cada vez más pequeños. Cuidado con los OVNIs en el horizonte.",
-    category: "SHOOTER",
-    cover: "cover-rocas",
-    color: "yellow",
-    best: 41200,
-    plays: "15.6K",
-  },
-  {
-    id: "ranaria",
-    title: "RANARIA",
-    short: "Cruza la autopista de pixeles.",
-    long: "Salta entre carriles de coches a toda velocidad y troncos a la deriva en el río. Llega a los nenúfares antes de que se acabe el tiempo.",
-    category: "ARCADE",
-    cover: "cover-rana",
-    color: "green",
-    best: 18900,
-    plays: "6.4K",
-  },
-  {
-    id: "duelo-pixel",
-    title: "DUELO PIXEL",
-    short: "Dos paletas. Una pelota. Reflejos máximos.",
-    long: "El duelo más puro: dos paletas verticales se enfrentan por rebotar una pelota luminosa. Modo solitario contra la CPU o partida local a dos jugadores.",
-    category: "VERSUS",
-    cover: "cover-duelo",
-    color: "cyan",
-    best: 24,
-    plays: "4.2K",
-  },
-];
+interface GameRow {
+  id: string;
+  title: string;
+  short: string;
+  long: string;
+  category: Category;
+  cover: string;
+  color: GameColor;
+  best_seed: number;
+  plays_seed: string;
+}
+
+interface LiveStats {
+  best: number;
+  plays: number;
+}
+
+// best/plays: MAX(score)/COUNT(*) real por game_id; sin partidas reales aún,
+// se usa best_seed/plays_seed como valor de exhibición (ver SPEC 06).
+function toGame(row: GameRow, stats?: LiveStats): Game {
+  const hasRealPlays = !!stats && stats.plays > 0;
+  return {
+    id: row.id,
+    title: row.title,
+    short: row.short,
+    long: row.long,
+    category: row.category,
+    cover: row.cover,
+    color: row.color,
+    best: hasRealPlays ? stats.best : row.best_seed,
+    plays: hasRealPlays ? String(stats.plays) : row.plays_seed,
+  };
+}
+
+export async function getGames(): Promise<Game[]> {
+  const supabase = await createClient();
+  const [{ data: rows }, { data: scores }] = await Promise.all([
+    supabase.from("games").select("*"),
+    supabase.from("scores").select("game_id, score"),
+  ]);
+
+  const statsByGame = new Map<string, LiveStats>();
+  for (const s of scores ?? []) {
+    const current = statsByGame.get(s.game_id) ?? { best: 0, plays: 0 };
+    current.plays += 1;
+    current.best = Math.max(current.best, s.score);
+    statsByGame.set(s.game_id, current);
+  }
+
+  return (rows ?? []).map((row) => toGame(row, statsByGame.get(row.id)));
+}
+
+export async function getGame(id: string): Promise<Game | undefined> {
+  const supabase = await createClient();
+  const [{ data: row }, { data: scores }] = await Promise.all([
+    supabase.from("games").select("*").eq("id", id).maybeSingle(),
+    supabase.from("scores").select("score").eq("game_id", id),
+  ]);
+
+  if (!row) return undefined;
+
+  const plays = scores?.length ?? 0;
+  const best = plays > 0 ? Math.max(...scores!.map((s) => s.score)) : 0;
+
+  return toGame(row, { best, plays });
+}
 
 export const CATEGORIES = ["TODOS", "ARCADE", "PUZZLE", "SHOOTER", "VERSUS"] as const;
-
-export function getGame(id: string): Game | undefined {
-  return GAMES.find((game) => game.id === id);
-}
