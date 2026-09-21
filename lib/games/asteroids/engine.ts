@@ -313,6 +313,8 @@ export class Particle {
 export type AsteroidsInternalState = "playing" | "dead" | "gameover";
 export type AsteroidsPhase = AsteroidsInternalState | "paused";
 const SAFE_DIST = 130;
+// Teclas que el navegador desplazaría por defecto (flechas y espacio) y que el juego consume.
+const SCROLL_KEYS = new Set(["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Space"]);
 
 export interface AsteroidsState {
   score: number;
@@ -359,6 +361,8 @@ export class AsteroidsEngine {
   }
 
   private handleKeyDown = (e: KeyboardEvent) => {
+    // Evita que las teclas del juego (incluida Espacio) desplacen la página mientras se juega.
+    if (SCROLL_KEYS.has(e.code)) e.preventDefault();
     if (!this.keys[e.code]) this.justPressed[e.code] = true;
     this.keys[e.code] = true;
   };
