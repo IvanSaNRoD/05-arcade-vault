@@ -1,6 +1,6 @@
 # SPEC 06 — Leaderboard y tabla de juegos reales (Supabase)
 
-> **Status:** Draft
+> **Status:** Aprobada
 > **Depends on:** SPEC 04, SPEC 05
 > **Date:** 2026-09-21
 > **Objective:** Migrar el catálogo de juegos (`lib/games.ts`) y el leaderboard (`lib/scores.ts`) de datos mock a tablas reales de Supabase, conectando "GUARDAR PUNTUACIÓN" a una escritura real solo para `asteroids`.
