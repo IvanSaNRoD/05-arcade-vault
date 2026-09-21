@@ -1,6 +1,6 @@
 # SPEC 05 — Adaptación del juego Asteroids a Next.js
 
-> **Status:** Aprobada
+> **Status:** Implementado
 > **Depends on:** SPEC 01
 > **Date:** 2026-09-21
 > **Objective:** Adaptar el juego de Asteroids (`references/resources/started-games/02-asteroids/game.js`) a un motor TypeScript + Client Component de Next.js que reemplaza el gameplay simulado de la entrada `"rocas"` (renombrada a `"asteroids"`) en `components/player.tsx` por partidas reales, conectado al HUD y a los botones PAUSA/FIN existentes.
@@ -98,21 +98,21 @@ Convenciones:
 
 ## Criterios de aceptación
 
-- [ ] `npm run build` y `npm run lint` terminan sin errores.
-- [ ] `/juegos` muestra la card "ASTEROIDS" (antes "ROCAS"); `/juegos/asteroids` y `/juegos/asteroids/jugar` cargan sin 404.
-- [ ] `/juegos/asteroids/jugar` renderiza un `<canvas>` con el juego de Asteroids real (nave, asteroides, disparo) en vez de la simulación de `.game-arena`.
-- [ ] `←`/`→` rotan la nave, `↑` propulsa, `Espacio` dispara, dentro del canvas mientras la página está montada.
-- [ ] El HUD superior de `player.tsx` (Puntuación, Vidas, Nivel) refleja el score/vidas/nivel reales del motor, no valores simulados.
-- [ ] Destruir un asteroide grande/mediano/pequeño suma 20/50/100 puntos respectivamente al HUD real.
-- [ ] El botón "PAUSA" detiene el juego (deja de moverse) y "REANUDAR" lo continúa, sin perder el estado (posición, score).
-- [ ] El botón "FIN" abre el modal de fin de partida con el score real acumulado hasta ese momento.
-- [ ] Al perder las 3 vidas dentro del propio juego, se abre el modal de fin de partida existente con el score real (sin necesidad de pulsar "FIN").
-- [ ] "JUGAR DE NUEVO" reinicia una partida nueva del motor real (score 0, 3 vidas, nivel 1).
-- [ ] "GUARDAR PUNTUACIÓN" sigue mostrando el toast "PUNTUACIÓN GUARDADA_" sin llamadas de red.
-- [ ] Navegar a `/juegos/asteroids` (SALIR) o fuera de la página detiene el `requestAnimationFrame` y remueve los listeners de teclado (sin errores en consola ni fugas al volver a entrar).
-- [ ] `/juegos/<otro-id>/jugar` (cualquier juego distinto de "asteroids") sigue mostrando el `.game-arena` simulado sin cambios visuales ni de comportamiento.
-- [ ] A 400px de ancho, el canvas de "asteroids" se escala dentro de `.crt-screen` sin desbordar ni generar scroll horizontal.
-- [ ] La consola del navegador no muestra errores en `/juegos/asteroids/jugar` (incluyendo montaje/desmontaje repetido en desarrollo con Strict Mode).
+- [x] `npm run build` y `npm run lint` terminan sin errores.
+- [x] `/juegos` muestra la card "ASTEROIDS" (antes "ROCAS"); `/juegos/asteroids` y `/juegos/asteroids/jugar` cargan sin 404.
+- [x] `/juegos/asteroids/jugar` renderiza un `<canvas>` con el juego de Asteroids real (nave, asteroides, disparo) en vez de la simulación de `.game-arena`.
+- [x] `←`/`→` rotan la nave, `↑` propulsa, `Espacio` dispara, dentro del canvas mientras la página está montada.
+- [x] El HUD superior de `player.tsx` (Puntuación, Vidas, Nivel) refleja el score/vidas/nivel reales del motor, no valores simulados.
+- [x] Destruir un asteroide grande/mediano/pequeño suma 20/50/100 puntos respectivamente al HUD real.
+- [x] El botón "PAUSA" detiene el juego (deja de moverse) y "REANUDAR" lo continúa, sin perder el estado (posición, score).
+- [x] El botón "FIN" abre el modal de fin de partida con el score real acumulado hasta ese momento.
+- [x] Al perder las 3 vidas dentro del propio juego, se abre el modal de fin de partida existente con el score real (sin necesidad de pulsar "FIN").
+- [x] "JUGAR DE NUEVO" reinicia una partida nueva del motor real (score 0, 3 vidas, nivel 1).
+- [x] "GUARDAR PUNTUACIÓN" sigue mostrando el toast "PUNTUACIÓN GUARDADA_" sin llamadas de red.
+- [x] Navegar a `/juegos/asteroids` (SALIR) o fuera de la página detiene el `requestAnimationFrame` y remueve los listeners de teclado (sin errores en consola ni fugas al volver a entrar).
+- [x] `/juegos/<otro-id>/jugar` (cualquier juego distinto de "asteroids") sigue mostrando el `.game-arena` simulado sin cambios visuales ni de comportamiento.
+- [x] A 400px de ancho, el canvas de "asteroids" se escala dentro de `.crt-screen` sin desbordar ni generar scroll horizontal.
+- [x] La consola del navegador no muestra errores en `/juegos/asteroids/jugar` (incluyendo montaje/desmontaje repetido en desarrollo con Strict Mode).
 
 ## Decisiones
 
