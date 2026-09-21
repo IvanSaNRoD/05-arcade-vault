@@ -1,12 +1,21 @@
 import Link from "next/link";
-import { GAMES } from "@/lib/games";
-import { FEATURES, STATS, RECENT_SCORES, TOP_PLAYERS, PRICING_PERKS, FAQ } from "@/lib/home";
+import { getGames } from "@/lib/games";
+import {
+  FEATURES,
+  STATS,
+  RECENT_SCORES,
+  TOP_PLAYERS,
+  PRICING_PERKS,
+  FAQ,
+} from "@/lib/home";
 import { HomeSilhouettes } from "@/components/home-silhouettes";
 import { FeatureIcon } from "@/components/feature-icon";
 import { MiniCard } from "@/components/mini-card";
 import { Reveal } from "@/components/reveal";
 
-export default function Home() {
+export default async function Home() {
+  const games = await getGames();
+
   return (
     <div className="home fade-in">
       <section className="home-hero">
@@ -68,7 +77,7 @@ export default function Home() {
           <div className="section-rule" />
         </div>
         <div className="mini-rail">
-          {GAMES.slice(0, 6).map((g) => (
+          {games.slice(0, 6).map((g) => (
             <MiniCard key={g.id} game={g} />
           ))}
         </div>
@@ -82,7 +91,11 @@ export default function Home() {
       <Reveal className="home-stats">
         <div className="stats-inner">
           {STATS.map((st, i) => (
-            <div key={st.unit} className="stat-block" style={{ transitionDelay: i * 90 + "ms" }}>
+            <div
+              key={st.unit}
+              className="stat-block"
+              style={{ transitionDelay: i * 90 + "ms" }}
+            >
               <div className="stat-n neon-yellow">{st.value}</div>
               <div className="stat-u pixel">{st.unit}</div>
               <div className="stat-s">{st.sub}</div>
@@ -104,10 +117,16 @@ export default function Home() {
             </div>
             <div className="ticker">
               {RECENT_SCORES.map((r, i) => (
-                <div key={r.player + r.ago} className="tick-row" style={{ animationDelay: i * 60 + "ms" }}>
+                <div
+                  key={r.player + r.ago}
+                  className="tick-row"
+                  style={{ animationDelay: i * 60 + "ms" }}
+                >
                   <span className={"tk-p neon-" + r.color}>{r.player}</span>
                   <span className="tk-mid">▸ {r.game}</span>
-                  <span className="tk-s">+{r.score.toLocaleString("es-ES")}</span>
+                  <span className="tk-s">
+                    +{r.score.toLocaleString("es-ES")}
+                  </span>
                   <span className="tk-t">{r.ago}</span>
                 </div>
               ))}
@@ -116,7 +135,9 @@ export default function Home() {
 
           <div className="activity-card">
             <div className="ac-head">
-              <div className="ac-title pixel neon-magenta">▸ TOP JUGADORES · HOY</div>
+              <div className="ac-title pixel neon-magenta">
+                ▸ TOP JUGADORES · HOY
+              </div>
               <Link href="/salon" className="lb-link">
                 VER SALÓN →
               </Link>
@@ -125,14 +146,30 @@ export default function Home() {
               {TOP_PLAYERS.map((p, i) => (
                 <div
                   key={p.player}
-                  className={"top-row" + (i === 0 ? " top1" : i === 1 ? " top2" : i === 2 ? " top3" : "")}
+                  className={
+                    "top-row" +
+                    (i === 0
+                      ? " top1"
+                      : i === 1
+                        ? " top2"
+                        : i === 2
+                          ? " top3"
+                          : "")
+                  }
                 >
-                  <span className="tp-rk">#{String(p.rank).padStart(2, "0")}</span>
+                  <span className="tp-rk">
+                    #{String(p.rank).padStart(2, "0")}
+                  </span>
                   <span className="tp-bar">
-                    <span className="tp-fill" style={{ width: 100 - i * 16 + "%" }} />
+                    <span
+                      className="tp-fill"
+                      style={{ width: 100 - i * 16 + "%" }}
+                    />
                   </span>
                   <span className="tp-p">{p.player}</span>
-                  <span className="tp-s">{p.score.toLocaleString("es-ES")}</span>
+                  <span className="tp-s">
+                    {p.score.toLocaleString("es-ES")}
+                  </span>
                 </div>
               ))}
             </div>
@@ -160,7 +197,11 @@ export default function Home() {
                 <li key={perk}>{perk}</li>
               ))}
             </ul>
-            <Link href="/auth" className="btn xl pulse" style={{ width: "100%" }}>
+            <Link
+              href="/auth"
+              className="btn xl pulse"
+              style={{ width: "100%" }}
+            >
               EMPEZAR GRATIS →
             </Link>
             <div className="pc-foot">No pedimos tarjeta. Nunca lo haremos.</div>
@@ -187,7 +228,9 @@ export default function Home() {
         <Link href="/juegos" className="btn xl pulse final-cta">
           INSERTAR MONEDA →
         </Link>
-        <div className="final-tag">Gratis. Sin registro obligatorio. Empieza en segundos.</div>
+        <div className="final-tag">
+          Gratis. Sin registro obligatorio. Empieza en segundos.
+        </div>
       </Reveal>
     </div>
   );
