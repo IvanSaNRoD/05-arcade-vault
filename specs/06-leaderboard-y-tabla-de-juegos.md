@@ -1,6 +1,6 @@
 # SPEC 06 — Leaderboard y tabla de juegos reales (Supabase)
 
-> **Status:** Aprobada
+> **Status:** Implementada
 > **Depends on:** SPEC 04, SPEC 05
 > **Date:** 2026-09-21
 > **Objective:** Migrar el catálogo de juegos (`lib/games.ts`) y el leaderboard (`lib/scores.ts`) de datos mock a tablas reales de Supabase, conectando "GUARDAR PUNTUACIÓN" a una escritura real solo para `asteroids`.
@@ -114,15 +114,15 @@ Convenciones:
 
 ## Criterios de aceptación
 
-- [ ] `mcp__supabase__list_tables` muestra `games` y `scores` con las columnas descritas.
-- [ ] `/juegos` muestra los 8 juegos leídos desde Supabase (no desde un array estático en el bundle).
-- [ ] `/juegos/<id>` muestra "Mejor global" y "Partidas" calculados en vivo desde `scores`, o el valor semilla si el juego no tiene partidas reales.
-- [ ] Al terminar una partida de `asteroids` y pulsar "GUARDAR PUNTUACIÓN" con un alias, se crea una fila real en `scores` con ese `game_id`, `name` y `score`.
-- [ ] Tras guardar, esa puntuación aparece en el leaderboard de `/juegos/asteroids` (`components/leaderboard.tsx`) y en `/salon?juego=asteroids` (`components/hall-of-fame.tsx`) sin recargar manualmente el build (ISR de 60s o navegación nueva).
-- [ ] Si `saveScore` falla (red/RLS), la UI muestra un estado de error y no marca la puntuación como guardada; el usuario puede reintentar.
-- [ ] "GUARDAR PUNTUACIÓN" en cualquier juego distinto de `asteroids` sigue mostrando el toast sin llamadas de red (comportamiento SPEC 05 sin cambios).
-- [ ] Cualquier visitante no autenticado puede leer `games` y `scores`, y puede insertar en `scores` (RLS público), sin poder insertar en `games` desde el cliente.
-- [ ] `npm run build`, `npm run lint` y `npx tsc --noEmit` terminan sin errores.
+- [x] `mcp__supabase__list_tables` muestra `games` y `scores` con las columnas descritas.
+- [x] `/juegos` muestra los 8 juegos leídos desde Supabase (no desde un array estático en el bundle).
+- [x] `/juegos/<id>` muestra "Mejor global" y "Partidas" calculados en vivo desde `scores`, o el valor semilla si el juego no tiene partidas reales.
+- [x] Al terminar una partida de `asteroids` y pulsar "GUARDAR PUNTUACIÓN" con un alias, se crea una fila real en `scores` con ese `game_id`, `name` y `score`.
+- [x] Tras guardar, esa puntuación aparece en el leaderboard de `/juegos/asteroids` (`components/leaderboard.tsx`) y en `/salon?juego=asteroids` (`components/hall-of-fame.tsx`) sin recargar manualmente el build (ISR de 60s o navegación nueva).
+- [x] Si `saveScore` falla (red/RLS), la UI muestra un estado de error y no marca la puntuación como guardada; el usuario puede reintentar.
+- [x] "GUARDAR PUNTUACIÓN" en cualquier juego distinto de `asteroids` sigue mostrando el toast sin llamadas de red (comportamiento SPEC 05 sin cambios).
+- [x] Cualquier visitante no autenticado puede leer `games` y `scores`, y puede insertar en `scores` (RLS público), sin poder insertar en `games` desde el cliente.
+- [x] `npm run build`, `npm run lint` y `npx tsc --noEmit` terminan sin errores.
 
 ## Decisiones
 
