@@ -311,11 +311,20 @@ export class Particle {
 
 // ── Estado del juego ──────────────────────────────────────────────────────────
 export type AsteroidsInternalState = "playing" | "dead" | "gameover";
+export type AsteroidsPhase = AsteroidsInternalState | "paused";
 const SAFE_DIST = 130;
+
+export interface AsteroidsState {
+  score: number;
+  lives: number;
+  level: number;
+  phase: AsteroidsPhase;
+}
 
 export class AsteroidsEngine {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
+  private onStateChange: (state: AsteroidsState) => void;
 
   private ship: Ship;
   private bullets: Bullet[] = [];
@@ -330,18 +339,69 @@ export class AsteroidsEngine {
   private deadTimer = 0;
   private powerUpSpawned = false;
   private killsSinceSpawn = 0;
+  private paused = false;
 
-  // Input: alimentado por los listeners de teclado (registrados en start(), ver Paso 4).
+  // Input: alimentado por los listeners de teclado (registrados en start()).
   private keys: KeyState = {};
   private justPressed: KeyState = {};
 
-  constructor(canvas: HTMLCanvasElement) {
+  private rafId: number | null = null;
+  private lastTime: number | null = null;
+
+  constructor(canvas: HTMLCanvasElement, onStateChange: (state: AsteroidsState) => void) {
     this.canvas = canvas;
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("No se pudo obtener el contexto 2D del canvas");
     this.ctx = ctx;
+    this.onStateChange = onStateChange;
     this.ship = new Ship();
     this.initGame();
+  }
+
+  private handleKeyDown = (e: KeyboardEvent) => {
+    if (!this.keys[e.code]) this.justPressed[e.code] = true;
+    this.keys[e.code] = true;
+  };
+
+  private handleKeyUp = (e: KeyboardEvent) => {
+    this.keys[e.code] = false;
+  };
+
+  private emitState() {
+    this.onStateChange({
+      score: this.score,
+      lives: this.lives,
+      level: this.level,
+      phase: this.paused ? "paused" : this.state,
+    });
+  }
+
+  /** Arranca el loop de juego y registra los listeners de teclado. Idempotente. */
+  start() {
+    if (this.rafId !== null) return;
+    window.addEventListener("keydown", this.handleKeyDown);
+    window.addEventListener("keyup", this.handleKeyUp);
+    this.lastTime = null;
+
+    const loop = (ts: number) => {
+      const dt = this.lastTime === null ? 0 : Math.min((ts - this.lastTime) / 1000, 0.05);
+      this.lastTime = ts;
+      if (!this.paused) this.update(dt);
+      this.draw();
+      this.emitState();
+      this.rafId = requestAnimationFrame(loop);
+    };
+    this.rafId = requestAnimationFrame(loop);
+  }
+
+  /** Cancela el loop y remueve los listeners de teclado. Seguro de llamar más de una vez. */
+  destroy() {
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+    window.removeEventListener("keydown", this.handleKeyDown);
+    window.removeEventListener("keyup", this.handleKeyUp);
   }
 
   private pressed(code: string): boolean {
