@@ -8,6 +8,7 @@ import {
 } from "@/components/games/asteroids-game";
 import type { AsteroidsState } from "@/lib/games/asteroids/engine";
 import type { Game } from "@/lib/games";
+import { saveScore } from "@/lib/scores-client";
 
 export function Player({ game }: { game: Game }) {
   const isAsteroids = game.id === "asteroids";
@@ -19,6 +20,8 @@ export function Player({ game }: { game: Game }) {
   const [over, setOver] = useState(false);
   const [name, setName] = useState("INVITADO");
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(false);
   const scoreRef = useRef(0);
   const engineRef = useRef<AsteroidsGameHandle>(null);
 
@@ -56,6 +59,25 @@ export function Player({ game }: { game: Game }) {
     setPaused(false);
     setOver(false);
     setSaved(false);
+    setSaving(false);
+    setSaveError(false);
+  };
+
+  const handleSaveScore = async () => {
+    if (!isAsteroids) {
+      setSaved(true);
+      return;
+    }
+    setSaving(true);
+    setSaveError(false);
+    try {
+      await saveScore(game.id, name, score);
+      setSaved(true);
+    } catch {
+      setSaveError(true);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -163,12 +185,21 @@ export function Player({ game }: { game: Game }) {
                   placeholder="TUS INICIALES"
                   aria-label="Tus iniciales"
                 />
-                <button className="btn yellow" onClick={() => setSaved(true)}>
-                  GUARDAR PUNTUACIÓN
+                <button
+                  className="btn yellow"
+                  onClick={handleSaveScore}
+                  disabled={saving}
+                >
+                  {saving ? "GUARDANDO…" : "GUARDAR PUNTUACIÓN"}
                 </button>
               </div>
             ) : (
               <div className="toast-saved">▸ PUNTUACIÓN GUARDADA_</div>
+            )}
+            {saveError && (
+              <div className="toast-saved text-magenta">
+                ▸ ERROR AL GUARDAR_ INTÉNTALO DE NUEVO
+              </div>
             )}
             <div className="actions">
               <button className="btn" onClick={restart}>
