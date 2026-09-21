@@ -80,10 +80,26 @@ export function Player({ game }: { game: Game }) {
           </div>
         </div>
         <div className="hud-actions">
-          <button className="btn yellow" onClick={() => setPaused((p) => !p)}>
+          <button
+            className="btn yellow"
+            onClick={() => {
+              if (isAsteroids) {
+                if (paused) engineRef.current?.resume();
+                else engineRef.current?.pause();
+              } else {
+                setPaused((p) => !p);
+              }
+            }}
+          >
             {paused ? "REANUDAR" : "PAUSA"}
           </button>
-          <button className="btn magenta" onClick={() => setOver(true)}>
+          <button
+            className="btn magenta"
+            onClick={() => {
+              if (isAsteroids) engineRef.current?.forceGameOver();
+              else setOver(true);
+            }}
+          >
             FIN
           </button>
           <Link href={`/juegos/${game.id}`} className="btn ghost">
@@ -94,13 +110,20 @@ export function Player({ game }: { game: Game }) {
 
       <div className="crt">
         <div className="crt-screen">
-          <div className="game-arena">
-            <div className="grid-floor" />
-            <div className="enemy e1" />
-            <div className="enemy e2" />
-            <div className="enemy e3" />
-            <div className="player-ship" />
-          </div>
+          {isAsteroids ? (
+            <AsteroidsGame
+              ref={engineRef}
+              onStateChange={handleAsteroidsState}
+            />
+          ) : (
+            <div className="game-arena">
+              <div className="grid-floor" />
+              <div className="enemy e1" />
+              <div className="enemy e2" />
+              <div className="enemy e3" />
+              <div className="player-ship" />
+            </div>
+          )}
           {paused && (
             <div className="crt-content z-5 bg-black/60">
               <div>
