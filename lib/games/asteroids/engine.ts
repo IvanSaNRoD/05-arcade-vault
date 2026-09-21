@@ -308,3 +308,209 @@ export class Particle {
     ctx.stroke();
   }
 }
+
+// ── Estado del juego ──────────────────────────────────────────────────────────
+export type AsteroidsInternalState = "playing" | "dead" | "gameover";
+const SAFE_DIST = 130;
+
+export class AsteroidsEngine {
+  private canvas: HTMLCanvasElement;
+  private ctx: CanvasRenderingContext2D;
+
+  private ship: Ship;
+  private bullets: Bullet[] = [];
+  private asteroids: Asteroid[] = [];
+  private particles: Particle[] = [];
+  private powerUps: PowerUp[] = [];
+
+  private score = 0;
+  private lives = 3;
+  private level = 1;
+  private state: AsteroidsInternalState = "playing";
+  private deadTimer = 0;
+  private powerUpSpawned = false;
+  private killsSinceSpawn = 0;
+
+  // Input: alimentado por los listeners de teclado (registrados en start(), ver Paso 4).
+  private keys: KeyState = {};
+  private justPressed: KeyState = {};
+
+  constructor(canvas: HTMLCanvasElement) {
+    this.canvas = canvas;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("No se pudo obtener el contexto 2D del canvas");
+    this.ctx = ctx;
+    this.ship = new Ship();
+    this.initGame();
+  }
+
+  private pressed(code: string): boolean {
+    const val = this.justPressed[code];
+    this.justPressed[code] = false;
+    return val;
+  }
+
+  private spawnAsteroids(count: number) {
+    for (let i = 0; i < count; i++) {
+      let x: number, y: number;
+      do {
+        x = rand(0, W);
+        y = rand(0, H);
+      } while (Math.hypot(x - W / 2, y - H / 2) < SAFE_DIST);
+      this.asteroids.push(new Asteroid(x, y, 3));
+    }
+  }
+
+  private initGame() {
+    this.ship = new Ship();
+    this.bullets = [];
+    this.asteroids = [];
+    this.particles = [];
+    this.powerUps = [];
+    this.powerUpSpawned = false;
+    this.killsSinceSpawn = 0;
+    this.score = 0;
+    this.lives = 3;
+    this.level = 1;
+    this.state = "playing";
+    this.spawnAsteroids(4);
+  }
+
+  private nextLevel() {
+    this.level++;
+    this.bullets = [];
+    this.particles = [];
+    this.powerUps = [];
+    this.powerUpSpawned = false;
+    this.killsSinceSpawn = 0;
+    this.ship.reset();
+    this.spawnAsteroids(3 + this.level);
+  }
+
+  private explode(x: number, y: number, count = 8) {
+    for (let i = 0; i < count; i++) this.particles.push(new Particle(x, y));
+  }
+
+  private killShip() {
+    this.explode(this.ship.x, this.ship.y, 14);
+    this.ship.dead = true;
+    this.lives--;
+    if (this.lives <= 0) {
+      this.state = "gameover";
+    } else {
+      this.state = "dead";
+      this.deadTimer = 2;
+    }
+  }
+
+  // ── Update ──────────────────────────────────────────────────────────────────
+  update(dt: number) {
+    if (this.state === "gameover") {
+      if (this.pressed("Space")) this.initGame();
+      this.particles.forEach((p) => p.update(dt));
+      this.particles = this.particles.filter((p) => !p.dead);
+      return;
+    }
+
+    if (this.state === "dead") {
+      this.deadTimer -= dt;
+      this.particles.forEach((p) => p.update(dt));
+      this.particles = this.particles.filter((p) => !p.dead);
+      this.asteroids.forEach((a) => a.update(dt));
+      if (this.deadTimer <= 0) {
+        this.state = "playing";
+        this.ship.reset();
+      }
+      return;
+    }
+
+    // Disparar
+    if (this.pressed("Space")) {
+      this.bullets.push(...this.ship.tryShoot());
+    }
+
+    this.ship.update(dt, this.keys);
+    this.bullets.forEach((b) => b.update(dt));
+    this.asteroids.forEach((a) => a.update(dt));
+    this.particles.forEach((p) => p.update(dt));
+    this.powerUps.forEach((p) => p.update(dt));
+
+    this.bullets = this.bullets.filter((b) => !b.dead);
+    this.particles = this.particles.filter((p) => !p.dead);
+    this.powerUps = this.powerUps.filter((p) => !p.dead);
+
+    for (const p of this.powerUps) {
+      if (!p.dead && dist(this.ship, p) < this.ship.radius + p.radius) {
+        p.dead = true;
+        this.ship.tripleShot = POWERUP_DURATION;
+      }
+    }
+
+    // Bala vs asteroide
+    const newAsteroids: Asteroid[] = [];
+    for (const b of this.bullets) {
+      for (const a of this.asteroids) {
+        if (!a.dead && !b.dead && dist(b, a) < a.radius) {
+          b.dead = true;
+          a.dead = true;
+          this.score += POINTS[a.size];
+          this.explode(a.x, a.y, a.size * 5);
+          newAsteroids.push(...a.split());
+          if (!this.powerUpSpawned) {
+            this.killsSinceSpawn++;
+            const guaranteed = this.killsSinceSpawn >= 5;
+            if (guaranteed || Math.random() < POWERUP_DROP_CHANCE) {
+              this.powerUps.push(new PowerUp(a.x, a.y));
+              this.powerUpSpawned = true;
+            }
+          }
+        }
+      }
+    }
+    this.asteroids = this.asteroids.filter((a) => !a.dead).concat(newAsteroids);
+    this.bullets = this.bullets.filter((b) => !b.dead);
+
+    // Nave vs asteroide
+    if (this.ship.invincible <= 0) {
+      for (const a of this.asteroids) {
+        if (dist(this.ship, a) < this.ship.radius + a.radius * 0.82) {
+          this.killShip();
+          break;
+        }
+      }
+    }
+
+    // Nivel completado
+    if (this.asteroids.length === 0) this.nextLevel();
+  }
+
+  private drawOverlay(title: string, sub: string) {
+    const ctx = this.ctx;
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 46px monospace";
+    ctx.fillText(title, W / 2, H / 2 - 18);
+    ctx.font = "18px monospace";
+    ctx.fillStyle = "rgba(255,255,255,0.65)";
+    ctx.fillText(sub, W / 2, H / 2 + 22);
+  }
+
+  // ── Draw ────────────────────────────────────────────────────────────────────
+  // Nota: a diferencia del original, no dibuja HUD (score/vidas/nivel) dentro del
+  // canvas — ese rol lo cumple el HUD de React en components/player.tsx.
+  draw() {
+    const ctx = this.ctx;
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, W, H);
+
+    this.particles.forEach((p) => p.draw(ctx));
+    this.asteroids.forEach((a) => a.draw(ctx));
+    this.powerUps.forEach((p) => p.draw(ctx));
+    this.bullets.forEach((b) => b.draw(ctx));
+    this.ship.draw(ctx);
+
+    if (this.state === "gameover") {
+      this.drawOverlay("GAME OVER", `PUNTAJE: ${this.score}   —   ESPACIO PARA REINICIAR`);
+    }
+  }
+}
