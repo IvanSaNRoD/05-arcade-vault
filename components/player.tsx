@@ -1,10 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  AsteroidsGame,
+  type AsteroidsGameHandle,
+} from "@/components/games/asteroids-game";
+import type { AsteroidsState } from "@/lib/games/asteroids/engine";
 import type { Game } from "@/lib/games";
 
 export function Player({ game }: { game: Game }) {
+  const isAsteroids = game.id === "asteroids";
+
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
   const [level, setLevel] = useState(1);
@@ -13,11 +20,13 @@ export function Player({ game }: { game: Game }) {
   const [name, setName] = useState("INVITADO");
   const [saved, setSaved] = useState(false);
   const scoreRef = useRef(0);
+  const engineRef = useRef<AsteroidsGameHandle>(null);
 
-  // Simulated gameplay: runs only on the client, so the server render (score 0) always matches.
-  // Level is bumped in the same tick instead of a score-watching effect (avoids setState in effect).
+  // Simulated gameplay (juegos sin motor real): corre solo en el cliente, así el
+  // render del servidor (score 0) siempre coincide. El nivel sube en el mismo tick
+  // en vez de un efecto que observa el score (evita setState dentro de un efecto).
   useEffect(() => {
-    if (over || paused) return;
+    if (isAsteroids || over || paused) return;
     const t = setInterval(() => {
       const next = scoreRef.current + Math.floor(10 + Math.random() * 90);
       scoreRef.current = next;
@@ -25,13 +34,25 @@ export function Player({ game }: { game: Game }) {
       if (next % 2500 < 100) setLevel((l) => l + 1);
     }, 220);
     return () => clearInterval(t);
-  }, [over, paused]);
+  }, [isAsteroids, over, paused]);
+
+  const handleAsteroidsState = useCallback((state: AsteroidsState) => {
+    setScore(state.score);
+    setLives(state.lives);
+    setLevel(state.level);
+    setPaused(state.phase === "paused");
+    setOver(state.phase === "gameover");
+  }, []);
 
   const restart = () => {
-    scoreRef.current = 0;
-    setScore(0);
-    setLives(3);
-    setLevel(1);
+    if (isAsteroids) {
+      engineRef.current?.restart();
+    } else {
+      scoreRef.current = 0;
+      setScore(0);
+      setLives(3);
+      setLevel(1);
+    }
     setPaused(false);
     setOver(false);
     setSaved(false);
@@ -100,7 +121,12 @@ export function Player({ game }: { game: Game }) {
 
       {over && (
         <div className="modal-bd">
-          <div className="modal" role="dialog" aria-modal="true" aria-labelledby="game-over-title">
+          <div
+            className="modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="game-over-title"
+          >
             <h2 id="game-over-title">FIN DEL JUEGO</h2>
             <div className="final-label">PUNTUACIÓN FINAL</div>
             <div className="final">{score.toLocaleString("es-ES")}</div>
@@ -108,7 +134,9 @@ export function Player({ game }: { game: Game }) {
               <div className="input-row">
                 <input
                   value={name}
-                  onChange={(e) => setName(e.target.value.toUpperCase().slice(0, 10))}
+                  onChange={(e) =>
+                    setName(e.target.value.toUpperCase().slice(0, 10))
+                  }
                   placeholder="TUS INICIALES"
                   aria-label="Tus iniciales"
                 />
