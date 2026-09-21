@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/static";
 
 export interface ScoreRow {
   rank: number;
@@ -15,7 +15,7 @@ function formatDate(isoDate: string): string {
 }
 
 export async function getTopScores(gameId: string, limit = 10): Promise<ScoreRow[]> {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data } = await supabase
     .from("scores")
     .select("name, score, created_at")

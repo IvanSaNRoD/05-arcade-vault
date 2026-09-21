@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { GameCard } from "@/components/game-card";
-import { CATEGORIES, type Game } from "@/lib/games";
+import { CATEGORIES, type Game } from "@/lib/games-types";
 
 type CategoryFilter = (typeof CATEGORIES)[number];
 

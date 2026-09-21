@@ -1,19 +1,8 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/static";
+import type { Category, Game, GameColor } from "@/lib/games-types";
 
-export type Category = "ARCADE" | "PUZZLE" | "SHOOTER" | "VERSUS";
-export type GameColor = "cyan" | "magenta" | "yellow" | "green";
-
-export interface Game {
-  id: string;
-  title: string;
-  short: string;
-  long: string;
-  category: Category;
-  cover: string;
-  color: GameColor;
-  best: number;
-  plays: string;
-}
+export type { Category, Game, GameColor } from "@/lib/games-types";
+export { CATEGORIES } from "@/lib/games-types";
 
 interface GameRow {
   id: string;
@@ -50,7 +39,7 @@ function toGame(row: GameRow, stats?: LiveStats): Game {
 }
 
 export async function getGames(): Promise<Game[]> {
-  const supabase = await createClient();
+  const supabase = createClient();
   const [{ data: rows }, { data: scores }] = await Promise.all([
     supabase.from("games").select("*"),
     supabase.from("scores").select("game_id, score"),
@@ -68,7 +57,7 @@ export async function getGames(): Promise<Game[]> {
 }
 
 export async function getGame(id: string): Promise<Game | undefined> {
-  const supabase = await createClient();
+  const supabase = createClient();
   const [{ data: row }, { data: scores }] = await Promise.all([
     supabase.from("games").select("*").eq("id", id).maybeSingle(),
     supabase.from("scores").select("score").eq("game_id", id),
@@ -81,5 +70,3 @@ export async function getGame(id: string): Promise<Game | undefined> {
 
   return toGame(row, { best, plays });
 }
-
-export const CATEGORIES = ["TODOS", "ARCADE", "PUZZLE", "SHOOTER", "VERSUS"] as const;
