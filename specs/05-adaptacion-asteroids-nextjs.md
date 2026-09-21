@@ -1,6 +1,6 @@
 # SPEC 05 — Adaptación del juego Asteroids a Next.js
 
-> **Status:** Draft
+> **Status:** Aprobada
 > **Depends on:** SPEC 01
 > **Date:** 2026-09-21
 > **Objective:** Adaptar el juego de Asteroids (`references/resources/started-games/02-asteroids/game.js`) a un motor TypeScript + Client Component de Next.js que reemplaza el gameplay simulado de la entrada `"rocas"` (renombrada a `"asteroids"`) en `components/player.tsx` por partidas reales, conectado al HUD y a los botones PAUSA/FIN existentes.
