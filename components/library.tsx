@@ -2,22 +2,22 @@
 
 import { useMemo, useState } from "react";
 import { GameCard } from "@/components/game-card";
-import { CATEGORIES, GAMES } from "@/lib/games";
+import { CATEGORIES, type Game } from "@/lib/games";
 
 type CategoryFilter = (typeof CATEGORIES)[number];
 
-export function Library() {
+export function Library({ games }: { games: Game[] }) {
   const [q, setQ] = useState("");
   const [category, setCategory] = useState<CategoryFilter>("TODOS");
 
   const filtered = useMemo(
     () =>
-      GAMES.filter(
+      games.filter(
         (g) =>
           (category === "TODOS" || g.category === category) &&
           g.title.toLowerCase().includes(q.toLowerCase()),
       ),
-    [q, category],
+    [games, q, category],
   );
 
   return (
@@ -51,7 +51,9 @@ export function Library() {
         ))}
         {filtered.length === 0 && (
           <div className="col-span-full p-20 text-center text-ink-faint">
-            <div className="pixel mb-3 text-[14px] text-magenta">NO HAY RESULTADOS</div>
+            <div className="pixel mb-3 text-[14px] text-magenta">
+              NO HAY RESULTADOS
+            </div>
             <div>Intenta otra búsqueda o categoría.</div>
           </div>
         )}
