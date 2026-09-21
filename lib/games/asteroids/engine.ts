@@ -404,6 +404,30 @@ export class AsteroidsEngine {
     window.removeEventListener("keyup", this.handleKeyUp);
   }
 
+  /** Detiene el loop de simulación (el canvas deja de actualizarse) sin perder el estado. */
+  pause() {
+    this.paused = true;
+    this.emitState();
+  }
+
+  /** Reanuda el loop de simulación desde donde quedó. */
+  resume() {
+    this.paused = false;
+    this.emitState();
+  }
+
+  /** Fuerza el fin de la partida con el score actual, sin pasar por la explosión de la nave. */
+  forceGameOver() {
+    this.state = "gameover";
+    this.emitState();
+  }
+
+  /** Reinicia una partida nueva (score 0, 3 vidas, nivel 1). */
+  restart() {
+    this.initGame();
+    this.emitState();
+  }
+
   private pressed(code: string): boolean {
     const val = this.justPressed[code];
     this.justPressed[code] = false;
