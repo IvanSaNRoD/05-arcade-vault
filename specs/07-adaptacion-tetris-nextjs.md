@@ -1,6 +1,6 @@
 # SPEC 07 — Adaptación del juego Tetris a Next.js
 
-> **Status:** Aprobada
+> **Status:** Implementada
 > **Depends on:** SPEC 05, SPEC 06
 > **Date:** 2026-09-23
 > **Objective:** Portar el prototipo de Tetris (`references/resources/started-games/03-tetris/game.js`) a un motor TypeScript + Client Component que sustituye el juego simulado `caida` (renombrado a `tetris`), con puntuaciones reales en Supabase, introduciendo un registro de motores en `components/player.tsx`.
@@ -133,27 +133,27 @@ Convenciones:
 
 ## Criterios de aceptación
 
-- [ ] `npx tsc --noEmit`, `npm run lint` y `npm run build` terminan sin errores.
-- [ ] `components/player.tsx` no contiene `isAsteroids`.
-- [ ] `/juegos` muestra la card "TETRIS" con `cover-tetro` y ya no muestra "CAÍDA".
-- [ ] `/juegos/tetris` carga mostrando "Mejor global" y "Partidas".
-- [ ] `/juegos/tetris/jugar` renderiza el canvas con el tablero centrado y la preview SIGUIENTE, no el `.game-arena` simulado.
-- [ ] `←`/`→` mueven, `↑` y `X` rotan (con wall kick junto a la pared), `↓` baja una fila y `Espacio` deja caer la pieza.
-- [ ] Flechas y `Espacio` no hacen scroll de la página mientras se juega.
-- [ ] El HUD muestra "Líneas" con número (no corazones) y refleja líneas, puntuación y nivel reales del motor.
-- [ ] Limpiar 1/2/3/4 líneas en nivel 1 suma 100/300/500/800 puntos.
-- [ ] Al llegar a 10 líneas el HUD pasa a Nivel 02 y la caída se acelera.
-- [ ] PAUSA congela la pieza y REANUDAR continúa sin perder estado.
-- [ ] `P` pausa y reanuda, y el overlay "EN PAUSA" aparece y desaparece igual que con el botón.
-- [ ] FIN abre el modal con la puntuación real.
-- [ ] Cuando una pieza nueva no cabe al aparecer, se abre el modal sin pulsar FIN.
-- [ ] JUGAR DE NUEVO empieza con tablero vacío, puntuación 0, 0 líneas y nivel 01.
-- [ ] GUARDAR PUNTUACIÓN inserta una fila con `game_id = 'tetris'` visible en `/juegos/tetris` y `/salon?juego=tetris`.
-- [ ] Si `saveScore` falla, el modal muestra el error y permite reintentar.
-- [ ] `/juegos/asteroids/jugar` sigue igual: corazones en Vidas, controles, pausa, fin y guardado.
-- [ ] Un juego sin motor (p. ej. `/juegos/serpentina/jugar`) sigue mostrando el `.game-arena` simulado y el toast sin red.
-- [ ] SALIR y volver a entrar no duplica input ni deja errores en consola (incluido Strict Mode en `npm run dev`).
-- [ ] A 400px de ancho el canvas se escala dentro de `.crt-screen` sin scroll horizontal.
+- [x] `npx tsc --noEmit`, `npm run lint` y `npm run build` terminan sin errores.
+- [x] `components/player.tsx` no contiene `isAsteroids`.
+- [x] `/juegos` muestra la card "TETRIS" con `cover-tetro` y ya no muestra "CAÍDA".
+- [x] `/juegos/tetris` carga mostrando "Mejor global" y "Partidas".
+- [x] `/juegos/tetris/jugar` renderiza el canvas con el tablero centrado y la preview SIGUIENTE, no el `.game-arena` simulado.
+- [x] `←`/`→` mueven, `↑` y `X` rotan (con wall kick junto a la pared), `↓` baja una fila y `Espacio` deja caer la pieza.
+- [x] Flechas y `Espacio` no hacen scroll de la página mientras se juega.
+- [x] El HUD muestra "Líneas" con número (no corazones) y refleja líneas, puntuación y nivel reales del motor.
+- [x] Limpiar 1/2/3/4 líneas en nivel 1 suma 100/300/500/800 puntos.
+- [x] Al llegar a 10 líneas el HUD pasa a Nivel 02 y la caída se acelera.
+- [x] PAUSA congela la pieza y REANUDAR continúa sin perder estado.
+- [x] `P` pausa y reanuda, y el overlay "EN PAUSA" aparece y desaparece igual que con el botón.
+- [x] FIN abre el modal con la puntuación real.
+- [x] Cuando una pieza nueva no cabe al aparecer, se abre el modal sin pulsar FIN.
+- [x] JUGAR DE NUEVO empieza con tablero vacío, puntuación 0, 0 líneas y nivel 01.
+- [x] GUARDAR PUNTUACIÓN inserta una fila con `game_id = 'tetris'` visible en `/juegos/tetris` y `/salon?juego=tetris`.
+- [x] Si `saveScore` falla, el modal muestra el error y permite reintentar.
+- [x] `/juegos/asteroids/jugar` sigue igual: corazones en Vidas, controles, pausa, fin y guardado.
+- [x] Un juego sin motor (p. ej. `/juegos/serpentina/jugar`) sigue mostrando el `.game-arena` simulado y el toast sin red.
+- [x] SALIR y volver a entrar no duplica input ni deja errores en consola (incluido Strict Mode en `npm run dev`).
+- [x] A 400px de ancho el canvas se escala dentro de `.crt-screen` sin scroll horizontal.
 
 ## Decisiones
 
