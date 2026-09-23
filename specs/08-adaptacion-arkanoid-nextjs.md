@@ -25,7 +25,7 @@ El catálogo ya tiene `bloque-buster` (BLOQUE BUSTER, `cover-bricks`, ARCADE, cy
 - `ArkanoidEngine` expone `start()`, `pause()`, `resume()`, `forceGameOver()`, `restart()` y `destroy()`. `restart()` se **inventa** (el prototipo solo reiniciaba recargando la página): reinicia a nivel 1, 3 vidas y score 0.
 - `components/games/arkanoid-game.tsx` (`"use client"`, `forwardRef<ArkanoidGameHandle, { onStateChange }>`), copia estructural de `components/games/asteroids-game.tsx`.
 - `lib/games/registry.ts`: añadir `arkanoid: { component: ArkanoidGame }` (sin `secondaryLabel`: tiene vidas → corazones).
-- Paso manual en Supabase: `update games set id = 'arkanoid', title = 'ARKANOID' where id = 'bloque-buster'`.
+- Paso en Supabase vía MCP de Supabase: `update games set id = 'arkanoid', title = 'ARKANOID' where id = 'bloque-buster'`. Si el MCP no está conectado al llegar a este paso, el agente se detiene y pide al usuario que lo active antes de continuar.
 
 **Out of scope (para specs futuras):**
 
@@ -89,7 +89,7 @@ export const GAME_ENGINES: Record<string, GameEngineEntry> = {
 ```
 
 ```sql
--- Fila del catálogo (manual). Solo cambian id y title.
+-- Fila del catálogo (vía MCP de Supabase). Solo cambian id y title.
 -- Sin cambios: short, long, category 'ARCADE', cover 'cover-bricks', color 'cyan',
 -- best_seed 28450, plays_seed '12.4K'.
 update games set id = 'arkanoid', title = 'ARKANOID' where id = 'bloque-buster';
@@ -114,7 +114,7 @@ Convenciones:
 7. `engine.ts` (parte 4): loop e input. `start()` idempotente; `keydown`/`keyup` en `window` y `mousemove` en el canvas, todos como arrow class fields (`preventDefault` en `←`/`→`); `P`/`Escape` alternan pausa. El loop hace `if (!paused) update(dt)`, luego siempre `draw()` y `emitState()`. Añadir `pause`, `resume`, `forceGameOver` (`state = 'gameover'`), `restart` (nivel 1, 3 vidas, score 0) y `destroy` (cancela RAF, quita los tres listeners). `emitState` → `{ score, lives, level, phase }`. Verificar: `npx tsc --noEmit` y `npm run lint` sin errores nuevos.
 8. Crear `components/games/arkanoid-game.tsx` (`"use client"`, `forwardRef<ArkanoidGameHandle, { onStateChange }>`), espejo de `asteroids-game.tsx`: callback en ref, estado local reenviado por efecto, montaje con deps `[]` y `destroy()` en el cleanup, `useImperativeHandle` con los cuatro métodos, `<canvas width={800} height={600} style={{ width: "100%", height: "100%", display: "block" }} />`. Verificar: `npx tsc --noEmit` y `npm run lint` sin errores nuevos.
 9. Añadir `arkanoid: { component: ArkanoidGame }` a `GAME_ENGINES` en `lib/games/registry.ts` (sin `secondaryLabel`). Verificar: `npx tsc --noEmit` sin errores.
-10. Manual en Supabase (SQL editor, fuera de las herramientas del agente): comprobar que `select count(*) from scores where game_id = 'bloque-buster'` devuelve 0 (la FK `scores.game_id` no tiene `on update cascade`); ejecutar el `update` del Modelo de datos. Verificar: `select id, title, cover from games where id = 'arkanoid'` devuelve `arkanoid | ARKANOID | cover-bricks`.
+10. Supabase vía MCP de Supabase: el agente ejecuta el SQL con las herramientas del MCP. **Precondición:** si el MCP de Supabase no está conectado/disponible al llegar aquí, el agente **se detiene y pide al usuario que lo active**, sin continuar ni caer a un paso manual. Con el MCP conectado: comprobar que `select count(*) from scores where game_id = 'bloque-buster'` devuelve 0 (la FK `scores.game_id` no tiene `on update cascade`); ejecutar el `update` del Modelo de datos. Verificar: `select id, title, cover from games where id = 'arkanoid'` devuelve `arkanoid | ARKANOID | cover-bricks`.
 11. Gate: `npx tsc --noEmit`, `npm run lint` y `npm run build` sin errores.
 
 ## Criterios de aceptación
