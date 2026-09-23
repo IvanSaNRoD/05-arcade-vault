@@ -139,6 +139,8 @@ export function rotateCW(shape: number[][]) {
 }
 
 const WALL_KICKS = [0, -1, 1, -2, 2];
+// Teclas que el navegador desplazaría por defecto (flechas y espacio) y que el juego consume.
+const SCROLL_KEYS = new Set(["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Space"]);
 
 // ── TetrisEngine ──────────────────────────────────────────────────────────────
 export class TetrisEngine {
@@ -168,6 +170,112 @@ export class TetrisEngine {
     this.ctx = ctx;
     this.onStateChange = onStateChange;
     this.init();
+  }
+
+  private handleKeyDown = (e: KeyboardEvent) => {
+    if (SCROLL_KEYS.has(e.code)) e.preventDefault();
+
+    if (e.code === "KeyP") {
+      if (this.gameOver) return;
+      if (this.paused) this.resume();
+      else this.pause();
+      return;
+    }
+
+    if (this.paused || this.gameOver) return;
+
+    switch (e.code) {
+      case "ArrowLeft":
+        if (!collide(this.board, this.current.shape, this.current.x - 1, this.current.y))
+          this.current.x--;
+        break;
+      case "ArrowRight":
+        if (!collide(this.board, this.current.shape, this.current.x + 1, this.current.y))
+          this.current.x++;
+        break;
+      case "ArrowDown":
+        this.softDrop();
+        break;
+      case "ArrowUp":
+      case "KeyX":
+        this.tryRotate();
+        break;
+      case "Space":
+        this.hardDrop();
+        break;
+    }
+  };
+
+  private emitState() {
+    this.onStateChange({
+      score: this.score,
+      lives: this.lines,
+      level: this.level,
+      phase: this.paused ? "paused" : this.gameOver ? "gameover" : "playing",
+    });
+  }
+
+  /** Arranca el loop de juego y registra el listener de teclado. Idempotente. */
+  start() {
+    if (this.rafId !== null) return;
+    window.addEventListener("keydown", this.handleKeyDown);
+    this.lastTime = null;
+
+    const loop = (ts: number) => {
+      const dt = this.lastTime === null ? 0 : Math.min(ts - this.lastTime, 50);
+      this.lastTime = ts;
+      if (!this.paused && !this.gameOver) this.update(dt);
+      this.draw();
+      this.emitState();
+      this.rafId = requestAnimationFrame(loop);
+    };
+    this.rafId = requestAnimationFrame(loop);
+  }
+
+  /** Cancela el loop y remueve el listener de teclado. Seguro de llamar más de una vez. */
+  destroy() {
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+    window.removeEventListener("keydown", this.handleKeyDown);
+  }
+
+  /** Detiene el loop de simulación (el canvas deja de actualizarse) sin perder el estado. */
+  pause() {
+    this.paused = true;
+    this.emitState();
+  }
+
+  /** Reanuda el loop de simulación desde donde quedó. */
+  resume() {
+    this.paused = false;
+    this.emitState();
+  }
+
+  /** Fuerza el fin de la partida con el score actual. */
+  forceGameOver() {
+    this.gameOver = true;
+    this.emitState();
+  }
+
+  /** Reinicia una partida nueva (score 0, 0 líneas, nivel 1) sin re-registrar listeners. */
+  restart() {
+    this.init();
+    this.emitState();
+  }
+
+  /** Avanza la caída automática según `dropInterval`; bloquea y genera nueva pieza si no cabe. */
+  private update(dt: number) {
+    this.dropAccum += dt;
+    if (this.dropAccum >= this.dropInterval) {
+      this.dropAccum = 0;
+      if (!collide(this.board, this.current.shape, this.current.x, this.current.y + 1)) {
+        this.current.y++;
+      } else {
+        this.lockPiece();
+      }
+    }
   }
 
   private init() {
