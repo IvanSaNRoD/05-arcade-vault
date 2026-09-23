@@ -1,6 +1,6 @@
 # SPEC 08 — Adaptación del juego Arkanoid a Next.js
 
-> **Status:** Aprobado
+> **Status:** Implementado
 > **Depends on:** SPEC 05, SPEC 06, SPEC 07
 > **Date:** 2026-09-23
 > **Objective:** Portar el prototipo de Arkanoid (`references/resources/started-games/04-arkanoid/`) a un motor TypeScript + Client Component que sustituye el juego simulado `bloque-buster` (renombrado a `arkanoid`), con spritesheet, sonidos y puntuaciones reales en Supabase, añadiendo una entrada al registro de motores.
@@ -119,25 +119,25 @@ Convenciones:
 
 ## Criterios de aceptación
 
-- [ ] `npx tsc --noEmit`, `npm run lint` y `npm run build` terminan sin errores.
-- [ ] `/juegos` muestra la card "ARKANOID" con `cover-bricks` y ya no muestra "BLOQUE BUSTER".
-- [ ] `/juegos/arkanoid` carga mostrando "Mejor global" y "Partidas".
-- [ ] `/juegos/arkanoid/jugar` renderiza el canvas con paleta, bola y muro de bloques (spritesheet), no el `.game-arena` simulado.
-- [ ] El ratón sobre el canvas mueve la paleta, y `←`/`→` también.
-- [ ] Romper un bloque suma exactamente 10 puntos al HUD real y lanza su animación de explosión.
-- [ ] El HUD muestra "Vidas" con corazones y refleja puntuación, vidas y nivel reales del motor.
-- [ ] Al caer la bola bajo el canvas se pierde una vida; con 0 vidas se abre el modal de fin de partida sin pulsar FIN.
-- [ ] Limpiar todos los bloques avanza al siguiente nivel; limpiar el nivel 5 abre el modal con el score final.
-- [ ] Suenan `ball-bounce` en los rebotes y `break-sound` al romper un bloque.
-- [ ] `←`/`→` no hacen scroll de la página mientras se juega.
-- [ ] PAUSA congela el juego y REANUDAR continúa sin perder estado; `P`/`Escape` hacen lo mismo y el overlay "EN PAUSA" aparece/desaparece.
-- [ ] FIN abre el modal con la puntuación real.
-- [ ] JUGAR DE NUEVO empieza en nivel 1, 3 vidas y score 0.
-- [ ] GUARDAR PUNTUACIÓN inserta una fila con `game_id = 'arkanoid'` visible en `/juegos/arkanoid` y `/salon?juego=arkanoid`; si falla, el modal muestra el error y permite reintentar.
-- [ ] `/juegos/asteroids/jugar` y `/juegos/tetris/jugar` siguen funcionando igual.
-- [ ] Un juego sin motor (p. ej. `/juegos/serpentina/jugar`) sigue mostrando el `.game-arena` simulado y el toast sin red.
-- [ ] SALIR y volver a entrar no duplica input (teclado ni ratón) ni deja errores en consola (incluido Strict Mode en `npm run dev`).
-- [ ] A 400px de ancho el canvas se escala dentro de `.crt-screen` sin scroll horizontal, y el ratón sigue moviendo la paleta correctamente (coordenadas escaladas).
+- [x] `npx tsc --noEmit`, `npm run lint` y `npm run build` terminan sin errores.
+- [x] `/juegos` muestra la card "ARKANOID" con `cover-bricks` y ya no muestra "BLOQUE BUSTER".
+- [x] `/juegos/arkanoid` carga mostrando "Mejor global" y "Partidas".
+- [x] `/juegos/arkanoid/jugar` renderiza el canvas con paleta, bola y muro de bloques (spritesheet), no el `.game-arena` simulado.
+- [x] El ratón sobre el canvas mueve la paleta, y `←`/`→` también.
+- [x] Romper un bloque suma exactamente 10 puntos al HUD real y lanza su animación de explosión.
+- [x] El HUD muestra "Vidas" con corazones y refleja puntuación, vidas y nivel reales del motor.
+- [x] Al caer la bola bajo el canvas se pierde una vida; con 0 vidas se abre el modal de fin de partida sin pulsar FIN.
+- [x] Limpiar todos los bloques avanza al siguiente nivel; limpiar el nivel 5 abre el modal con el score final.
+- [x] Suenan `ball-bounce` en los rebotes y `break-sound` al romper un bloque.
+- [x] `←`/`→` no hacen scroll de la página mientras se juega.
+- [x] PAUSA congela el juego y REANUDAR continúa sin perder estado; `P`/`Escape` hacen lo mismo y el overlay "EN PAUSA" aparece/desaparece.
+- [x] FIN abre el modal con la puntuación real.
+- [x] JUGAR DE NUEVO empieza en nivel 1, 3 vidas y score 0.
+- [x] GUARDAR PUNTUACIÓN inserta una fila con `game_id = 'arkanoid'` visible en `/juegos/arkanoid` y `/salon?juego=arkanoid`; si falla, el modal muestra el error y permite reintentar.
+- [x] `/juegos/asteroids/jugar` y `/juegos/tetris/jugar` siguen funcionando igual.
+- [x] Un juego sin motor (p. ej. `/juegos/serpentina/jugar`) sigue mostrando el `.game-arena` simulado y el toast sin red.
+- [x] SALIR y volver a entrar no duplica input (teclado ni ratón) ni deja errores en consola (incluido Strict Mode en `npm run dev`).
+- [x] A 400px de ancho el canvas se escala dentro de `.crt-screen` sin scroll horizontal, y el ratón sigue moviendo la paleta correctamente (coordenadas escaladas).
 
 ## Decisiones
 
