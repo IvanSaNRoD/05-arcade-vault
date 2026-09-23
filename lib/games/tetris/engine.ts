@@ -127,3 +127,122 @@ export function rotateCW(shape: number[][]) {
     for (let c = 0; c < cols; c++) result[c][rows - 1 - r] = shape[r][c];
   return result;
 }
+
+const WALL_KICKS = [0, -1, 1, -2, 2];
+
+// ── TetrisEngine ──────────────────────────────────────────────────────────────
+export class TetrisEngine {
+  private canvas: HTMLCanvasElement;
+  private ctx: CanvasRenderingContext2D;
+  private onStateChange: (state: TetrisState) => void;
+
+  private board: Board = createBoard();
+  private current: Piece = randomPiece();
+  private next: Piece = randomPiece();
+
+  private score = 0;
+  private lines = 0;
+  private level = 1;
+  private paused = false;
+  private gameOver = false;
+
+  private lastTime: number | null = null;
+  private dropAccum = 0;
+  private dropInterval = 1000;
+  private rafId: number | null = null;
+
+  constructor(canvas: HTMLCanvasElement, onStateChange: (state: TetrisState) => void) {
+    this.canvas = canvas;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("No se pudo obtener el contexto 2D del canvas");
+    this.ctx = ctx;
+    this.onStateChange = onStateChange;
+    this.init();
+  }
+
+  private init() {
+    this.board = createBoard();
+    this.score = 0;
+    this.lines = 0;
+    this.level = 1;
+    this.paused = false;
+    this.gameOver = false;
+    this.dropInterval = 1000;
+    this.dropAccum = 0;
+    this.lastTime = null;
+    this.next = randomPiece();
+    this.spawn();
+  }
+
+  private tryRotate() {
+    const rotated = rotateCW(this.current.shape);
+    for (const kick of WALL_KICKS) {
+      if (!collide(this.board, rotated, this.current.x + kick, this.current.y)) {
+        this.current.shape = rotated;
+        this.current.x += kick;
+        return;
+      }
+    }
+  }
+
+  private merge() {
+    for (let r = 0; r < this.current.shape.length; r++)
+      for (let c = 0; c < this.current.shape[r].length; c++)
+        if (this.current.shape[r][c])
+          this.board[this.current.y + r][this.current.x + c] = this.current.shape[r][c];
+  }
+
+  private clearLines() {
+    let cleared = 0;
+    for (let r = ROWS - 1; r >= 0; r--) {
+      if (this.board[r].every((v) => v !== 0)) {
+        this.board.splice(r, 1);
+        this.board.unshift(new Array(COLS).fill(0));
+        cleared++;
+        r++;
+      }
+    }
+    if (cleared) {
+      this.lines += cleared;
+      this.score += (LINE_SCORES[cleared] || 0) * this.level;
+      this.level = Math.floor(this.lines / 10) + 1;
+      this.dropInterval = Math.max(100, 1000 - (this.level - 1) * 90);
+    }
+  }
+
+  private ghostY() {
+    let gy = this.current.y;
+    while (!collide(this.board, this.current.shape, this.current.x, gy + 1)) gy++;
+    return gy;
+  }
+
+  private hardDrop() {
+    const gy = this.ghostY();
+    this.score += (gy - this.current.y) * 2;
+    this.current.y = gy;
+    this.lockPiece();
+  }
+
+  private softDrop() {
+    if (!collide(this.board, this.current.shape, this.current.x, this.current.y + 1)) {
+      this.current.y++;
+      this.score += 1;
+    } else {
+      this.lockPiece();
+    }
+  }
+
+  private lockPiece() {
+    this.merge();
+    this.clearLines();
+    this.spawn();
+  }
+
+  private spawn() {
+    this.current = this.next;
+    this.next = randomPiece();
+    if (collide(this.board, this.current.shape, this.current.x, this.current.y)) {
+      this.gameOver = true;
+    }
+  }
+}
