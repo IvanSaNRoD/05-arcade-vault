@@ -3,7 +3,7 @@
 // state (canvas, ctx, blocks, keys, sounds...) became instance fields.
 
 import { LEVELS } from "./levels";
-import { Spritesheet } from "./sprites";
+import { EXPLOSION_DURATION, Spritesheet } from "./sprites";
 
 export const W = 800;
 export const H = 600;
@@ -128,5 +128,103 @@ export class ArkanoidEngine {
     }));
     this.explosions = [];
     this.initBall();
+  }
+
+  // cloneNode permite solapar sonidos; el catch evita rechazos por la política de autoplay.
+  private playSound(sound: HTMLAudioElement) {
+    (sound.cloneNode() as HTMLAudioElement).play().catch(() => {});
+  }
+
+  private collideAABB(block: Block) {
+    const ball = this.ball;
+    return (
+      ball.x < block.x + block.w &&
+      ball.x + ball.w > block.x &&
+      ball.y < block.y + block.h &&
+      ball.y + ball.h > block.y
+    );
+  }
+
+  // ── Update ──────────────────────────────────────────────────────────────────
+  update(dt: number) {
+    if (this.state !== "playing") return;
+    const { paddle, ball } = this;
+
+    // Paddle
+    if (this.keys.ArrowLeft) paddle.x = Math.max(0, paddle.x - PADDLE_SPEED * dt);
+    if (this.keys.ArrowRight) paddle.x = Math.min(W - paddle.w, paddle.x + PADDLE_SPEED * dt);
+
+    // Ball movement
+    ball.x += ball.vx * dt;
+    ball.y += ball.vy * dt;
+
+    // Wall bounces (left, right, top)
+    if (ball.x <= 0) {
+      ball.x = 0;
+      ball.vx = Math.abs(ball.vx);
+      this.playSound(this.bounceSound);
+    }
+    if (ball.x + ball.w >= W) {
+      ball.x = W - ball.w;
+      ball.vx = -Math.abs(ball.vx);
+      this.playSound(this.bounceSound);
+    }
+    if (ball.y <= 0) {
+      ball.y = 0;
+      ball.vy = Math.abs(ball.vy);
+      this.playSound(this.bounceSound);
+    }
+
+    // Paddle bounce
+    if (
+      ball.vy > 0 &&
+      ball.x + ball.w > paddle.x &&
+      ball.x < paddle.x + paddle.w &&
+      ball.y + ball.h >= paddle.y &&
+      ball.y + ball.h <= paddle.y + paddle.h + 8
+    ) {
+      ball.y = paddle.y - ball.h;
+      ball.vy = -Math.abs(ball.vy);
+      this.playSound(this.bounceSound);
+    }
+
+    // Block collisions
+    for (const block of this.blocks) {
+      if (!block.alive) continue;
+      if (this.collideAABB(block)) {
+        block.alive = false;
+        this.explosions.push({
+          x: block.x,
+          y: block.y,
+          w: block.w,
+          h: block.h,
+          color: block.color,
+          elapsed: 0,
+        });
+        this.score += 10;
+        ball.vy = -ball.vy;
+        this.playSound(this.breakSound);
+        if (this.blocks.every((b) => !b.alive)) {
+          if (this.level < LEVELS.length) this.loadLevel(this.level + 1);
+          else this.state = "gameover"; // "win" del prototipo
+        }
+        break; // one block per frame
+      }
+    }
+
+    // Explosions
+    for (const exp of this.explosions) exp.elapsed += dt * 1000;
+    this.explosions = this.explosions.filter((exp) => exp.elapsed < EXPLOSION_DURATION);
+
+    // Ball lost
+    if (ball.y > H) {
+      this.lives--;
+      if (this.lives <= 0) {
+        this.lives = 0;
+        this.state = "gameover";
+      } else {
+        this.initBall();
+      }
+    }
   }
 }
