@@ -94,8 +94,12 @@ export function Player({ game }: { game: Game }) {
             <div className="v">{score.toLocaleString("es-ES")}</div>
           </div>
           <div className="hud-stat lives">
-            <div className="l">Vidas</div>
-            <div className="v">{"♥ ".repeat(lives).trim() || "—"}</div>
+            <div className="l">{engineEntry?.secondaryLabel ?? "Vidas"}</div>
+            <div className="v">
+              {engineEntry?.secondaryLabel
+                ? lives
+                : "♥ ".repeat(lives).trim() || "—"}
+            </div>
           </div>
           <div className="hud-stat level">
             <div className="l">Nivel</div>
