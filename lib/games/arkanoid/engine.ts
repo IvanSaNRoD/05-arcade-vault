@@ -3,7 +3,7 @@
 // state (canvas, ctx, blocks, keys, sounds...) became instance fields.
 
 import { LEVELS } from "./levels";
-import { EXPLOSION_DURATION, Spritesheet } from "./sprites";
+import { EXPLOSION_DURATION, EXPLOSION_FRAMES, Spritesheet } from "./sprites";
 
 export const W = 800;
 export const H = 600;
@@ -226,5 +226,28 @@ export class ArkanoidEngine {
         this.initBall();
       }
     }
+  }
+
+  // ── Draw ────────────────────────────────────────────────────────────────────
+  // Nota: a diferencia del original, no dibuja HUD (score/vidas/nivel) ni overlays
+  // (GAME OVER / PAUSA / victoria) dentro del canvas — ese rol lo cumple
+  // components/player.tsx.
+  draw() {
+    const { ctx, sheet, paddle, ball } = this;
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, W, H);
+
+    for (const block of this.blocks) {
+      if (block.alive) sheet.drawSprite(ctx, "block_" + block.color, block.x, block.y, block.w, block.h);
+    }
+
+    for (const exp of this.explosions) {
+      const frames = EXPLOSION_FRAMES[exp.color];
+      const frameIndex = Math.min(Math.floor((exp.elapsed / EXPLOSION_DURATION) * frames.length), frames.length - 1);
+      sheet.drawFrame(ctx, frames[frameIndex], exp.x, exp.y, exp.w, exp.h);
+    }
+
+    sheet.drawSprite(ctx, "paddle", paddle.x, paddle.y, paddle.w, paddle.h);
+    sheet.drawSprite(ctx, "ball", ball.x, ball.y, ball.w, ball.h);
   }
 }
