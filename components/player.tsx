@@ -3,15 +3,16 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  AsteroidsGame,
-  type AsteroidsGameHandle,
-} from "@/components/games/asteroids-game";
-import type { AsteroidsState } from "@/lib/games/asteroids/engine";
+  GAME_ENGINES,
+  type GameEngineHandle,
+  type GameEngineState,
+} from "@/lib/games/registry";
 import type { Game } from "@/lib/games";
 import { saveScore } from "@/lib/scores-client";
 
 export function Player({ game }: { game: Game }) {
-  const isAsteroids = game.id === "asteroids";
+  const engineEntry = GAME_ENGINES[game.id];
+  const hasEngine = engineEntry !== undefined;
 
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
@@ -23,13 +24,13 @@ export function Player({ game }: { game: Game }) {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(false);
   const scoreRef = useRef(0);
-  const engineRef = useRef<AsteroidsGameHandle>(null);
+  const engineRef = useRef<GameEngineHandle>(null);
 
   // Simulated gameplay (juegos sin motor real): corre solo en el cliente, así el
   // render del servidor (score 0) siempre coincide. El nivel sube en el mismo tick
   // en vez de un efecto que observa el score (evita setState dentro de un efecto).
   useEffect(() => {
-    if (isAsteroids || over || paused) return;
+    if (hasEngine || over || paused) return;
     const t = setInterval(() => {
       const next = scoreRef.current + Math.floor(10 + Math.random() * 90);
       scoreRef.current = next;
@@ -37,9 +38,9 @@ export function Player({ game }: { game: Game }) {
       if (next % 2500 < 100) setLevel((l) => l + 1);
     }, 220);
     return () => clearInterval(t);
-  }, [isAsteroids, over, paused]);
+  }, [hasEngine, over, paused]);
 
-  const handleAsteroidsState = useCallback((state: AsteroidsState) => {
+  const handleEngineState = useCallback((state: GameEngineState) => {
     setScore(state.score);
     setLives(state.lives);
     setLevel(state.level);
@@ -48,7 +49,7 @@ export function Player({ game }: { game: Game }) {
   }, []);
 
   const restart = () => {
-    if (isAsteroids) {
+    if (hasEngine) {
       engineRef.current?.restart();
     } else {
       scoreRef.current = 0;
@@ -64,7 +65,7 @@ export function Player({ game }: { game: Game }) {
   };
 
   const handleSaveScore = async () => {
-    if (!isAsteroids) {
+    if (!hasEngine) {
       setSaved(true);
       return;
     }
@@ -105,7 +106,7 @@ export function Player({ game }: { game: Game }) {
           <button
             className="btn yellow"
             onClick={() => {
-              if (isAsteroids) {
+              if (hasEngine) {
                 if (paused) engineRef.current?.resume();
                 else engineRef.current?.pause();
               } else {
@@ -118,7 +119,7 @@ export function Player({ game }: { game: Game }) {
           <button
             className="btn magenta"
             onClick={() => {
-              if (isAsteroids) engineRef.current?.forceGameOver();
+              if (hasEngine) engineRef.current?.forceGameOver();
               else setOver(true);
             }}
           >
@@ -132,10 +133,10 @@ export function Player({ game }: { game: Game }) {
 
       <div className="crt">
         <div className="crt-screen">
-          {isAsteroids ? (
-            <AsteroidsGame
+          {engineEntry ? (
+            <engineEntry.component
               ref={engineRef}
-              onStateChange={handleAsteroidsState}
+              onStateChange={handleEngineState}
             />
           ) : (
             <div className="game-arena">
