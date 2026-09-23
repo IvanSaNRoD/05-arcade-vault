@@ -1,6 +1,6 @@
 # SPEC 08 — Adaptación del juego Arkanoid a Next.js
 
-> **Status:** Borrador
+> **Status:** Aprobado
 > **Depends on:** SPEC 05, SPEC 06, SPEC 07
 > **Date:** 2026-09-23
 > **Objective:** Portar el prototipo de Arkanoid (`references/resources/started-games/04-arkanoid/`) a un motor TypeScript + Client Component que sustituye el juego simulado `bloque-buster` (renombrado a `arkanoid`), con spritesheet, sonidos y puntuaciones reales en Supabase, añadiendo una entrada al registro de motores.
