@@ -104,6 +104,95 @@ export class ArkanoidEngine {
     this.loadLevel(1);
   }
 
+  private handleKeyDown = (e: KeyboardEvent) => {
+    // Evita que las flechas desplacen la página mientras se juega.
+    if (e.key === "ArrowLeft" || e.key === "ArrowRight") e.preventDefault();
+    if (e.key in this.keys) this.keys[e.key] = true;
+    if ((e.key === "p" || e.key === "P" || e.key === "Escape") && this.state === "playing") {
+      if (this.paused) this.resume();
+      else this.pause();
+    }
+  };
+
+  private handleKeyUp = (e: KeyboardEvent) => {
+    if (e.key in this.keys) this.keys[e.key] = false;
+  };
+
+  private handleMouseMove = (e: MouseEvent) => {
+    // El canvas se escala por CSS: convertir a coordenadas internas (800x600).
+    const rect = this.canvas.getBoundingClientRect();
+    const mouseX = (e.clientX - rect.left) * (W / rect.width);
+    this.paddle.x = Math.max(0, Math.min(W - this.paddle.w, mouseX - this.paddle.w / 2));
+  };
+
+  private emitState() {
+    this.onStateChange({
+      score: this.score,
+      lives: this.lives,
+      level: this.level,
+      phase: this.paused ? "paused" : this.state,
+    });
+  }
+
+  /** Arranca el loop de juego y registra los listeners de teclado y ratón. Idempotente. */
+  start() {
+    if (this.rafId !== null) return;
+    window.addEventListener("keydown", this.handleKeyDown);
+    window.addEventListener("keyup", this.handleKeyUp);
+    this.canvas.addEventListener("mousemove", this.handleMouseMove);
+    this.lastTime = null;
+
+    const loop = (ts: number) => {
+      const dt = this.lastTime === null ? 0 : Math.min((ts - this.lastTime) / 1000, 0.05);
+      this.lastTime = ts;
+      if (!this.paused) this.update(dt);
+      this.draw();
+      this.emitState();
+      this.rafId = requestAnimationFrame(loop);
+    };
+    this.rafId = requestAnimationFrame(loop);
+  }
+
+  /** Cancela el loop y remueve los listeners. Seguro de llamar más de una vez. */
+  destroy() {
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+    window.removeEventListener("keydown", this.handleKeyDown);
+    window.removeEventListener("keyup", this.handleKeyUp);
+    this.canvas.removeEventListener("mousemove", this.handleMouseMove);
+  }
+
+  /** Congela la simulación sin perder el estado (la última imagen sigue visible). */
+  pause() {
+    this.paused = true;
+    this.emitState();
+  }
+
+  /** Reanuda la simulación desde donde quedó. */
+  resume() {
+    this.paused = false;
+    this.emitState();
+  }
+
+  /** Fuerza el fin de la partida con el score actual. */
+  forceGameOver() {
+    this.state = "gameover";
+    this.emitState();
+  }
+
+  /** Reinicia una partida nueva (score 0, 3 vidas, nivel 1). */
+  restart() {
+    this.score = 0;
+    this.lives = 3;
+    this.state = "playing";
+    this.paused = false;
+    this.initPaddle();
+    this.loadLevel(1);
+    this.emitState();
+  }
+
   private initPaddle() {
     this.paddle.x = (W - this.paddle.w) / 2;
   }
