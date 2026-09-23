@@ -12,6 +12,16 @@ export const BLOCK = 30;
 export const BOARD_X = (W - COLS * BLOCK) / 2; // 250
 export const BOARD_Y = 0;
 
+// Preview "SIGUIENTE": caja de 120×120 (bloques de 30) a la derecha del tablero.
+const PREVIEW_SIZE = 120;
+const PREVIEW_BLOCK = 30;
+const PREVIEW_X = BOARD_X + COLS * BLOCK + 60;
+const PREVIEW_Y = 60;
+
+// Tema oscuro fijo del prototipo (sin getComputedStyle).
+const BG_COLOR = "#1a1a25";
+const GRID_COLOR = "#22222e";
+
 export const COLORS = [
   null,
   "#4dd0e1", // I - cyan
@@ -244,5 +254,95 @@ export class TetrisEngine {
     if (collide(this.board, this.current.shape, this.current.x, this.current.y)) {
       this.gameOver = true;
     }
+  }
+
+  // ── Draw ────────────────────────────────────────────────────────────────────
+  private drawBlock(px: number, py: number, colorIndex: number, size: number, alpha = 1) {
+    if (!colorIndex) return;
+    const ctx = this.ctx;
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = COLORS[colorIndex] as string;
+    ctx.fillRect(px + 1, py + 1, size - 2, size - 2);
+    ctx.fillStyle = "rgba(255,255,255,0.12)";
+    ctx.fillRect(px + 1, py + 1, size - 2, 4);
+    ctx.globalAlpha = 1;
+  }
+
+  private drawGrid() {
+    const ctx = this.ctx;
+    ctx.strokeStyle = GRID_COLOR;
+    ctx.lineWidth = 0.5;
+    for (let c = 1; c < COLS; c++) {
+      ctx.beginPath();
+      ctx.moveTo(BOARD_X + c * BLOCK, BOARD_Y);
+      ctx.lineTo(BOARD_X + c * BLOCK, BOARD_Y + ROWS * BLOCK);
+      ctx.stroke();
+    }
+    for (let r = 1; r < ROWS; r++) {
+      ctx.beginPath();
+      ctx.moveTo(BOARD_X, BOARD_Y + r * BLOCK);
+      ctx.lineTo(BOARD_X + COLS * BLOCK, BOARD_Y + r * BLOCK);
+      ctx.stroke();
+    }
+  }
+
+  private drawPreview() {
+    const ctx = this.ctx;
+    ctx.strokeStyle = GRID_COLOR;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(PREVIEW_X, PREVIEW_Y, PREVIEW_SIZE, PREVIEW_SIZE);
+    ctx.fillStyle = "rgba(255,255,255,0.65)";
+    ctx.font = "14px monospace";
+    ctx.textAlign = "left";
+    ctx.fillText("SIGUIENTE", PREVIEW_X, PREVIEW_Y - 12);
+
+    const shape = this.next.shape;
+    const offX = Math.floor((4 - shape[0].length) / 2);
+    const offY = Math.floor((4 - shape.length) / 2);
+    for (let r = 0; r < shape.length; r++)
+      for (let c = 0; c < shape[r].length; c++)
+        this.drawBlock(
+          PREVIEW_X + (offX + c) * PREVIEW_BLOCK,
+          PREVIEW_Y + (offY + r) * PREVIEW_BLOCK,
+          shape[r][c],
+          PREVIEW_BLOCK,
+        );
+  }
+
+  // Nota: a diferencia del original, no dibuja HUD (score/líneas/nivel) dentro del
+  // canvas — ese rol lo cumple el HUD de React en components/player.tsx.
+  draw() {
+    const ctx = this.ctx;
+    ctx.fillStyle = BG_COLOR;
+    ctx.fillRect(0, 0, W, H);
+    this.drawGrid();
+
+    for (let r = 0; r < ROWS; r++)
+      for (let c = 0; c < COLS; c++)
+        this.drawBlock(BOARD_X + c * BLOCK, BOARD_Y + r * BLOCK, this.board[r][c], BLOCK);
+
+    const gy = this.ghostY();
+    for (let r = 0; r < this.current.shape.length; r++)
+      for (let c = 0; c < this.current.shape[r].length; c++)
+        if (this.current.shape[r][c])
+          this.drawBlock(
+            BOARD_X + (this.current.x + c) * BLOCK,
+            BOARD_Y + (gy + r) * BLOCK,
+            this.current.shape[r][c],
+            BLOCK,
+            0.2,
+          );
+
+    for (let r = 0; r < this.current.shape.length; r++)
+      for (let c = 0; c < this.current.shape[r].length; c++)
+        if (this.current.shape[r][c])
+          this.drawBlock(
+            BOARD_X + (this.current.x + c) * BLOCK,
+            BOARD_Y + (this.current.y + r) * BLOCK,
+            this.current.shape[r][c],
+            BLOCK,
+          );
+
+    this.drawPreview();
   }
 }
