@@ -123,6 +123,21 @@ export class SnakeEngine {
     if (!this.spawnFruit()) this.state = "gameover";
   }
 
+  /** Fondo, fruta y serpiente. Sin HUD ni overlays: los pone player.tsx. */
+  draw() {
+    const ctx = this.ctx;
+    ctx.fillStyle = "#0a0a18";
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.imageSmoothingEnabled = false; // pixel-art nítido al escalar a 20 px
+    this.sheet.draw(ctx, this.fruitName, this.fruit.x * CELL, this.fruit.y * CELL, CELL);
+
+    this.snake.forEach((c, i) => {
+      ctx.fillStyle = i === 0 ? "#7dffb0" : "#1fd07a";
+      ctx.fillRect(c.x * CELL + 1, c.y * CELL + 1, CELL - 2, CELL - 2);
+    });
+  }
+
   /** Coloca la fruta en una celda libre aleatoria. Devuelve false si el tablero está lleno. */
   private spawnFruit(): boolean {
     const occupied = new Set(this.snake.map((c) => c.y * COLS + c.x));
