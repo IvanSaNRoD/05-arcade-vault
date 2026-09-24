@@ -1,6 +1,6 @@
 # SPEC 09 — Juego Snake en Next.js
 
-> **Status:** Aprobada
+> **Status:** Implementada
 > **Depends on:** SPEC 05, SPEC 06, SPEC 08
 > **Date:** 2026-09-25
 > **Objective:** Crear desde cero un motor TypeScript + Client Component de Snake estilo Nokia que sustituye el juego simulado `serpentina` (renombrado a `snake`), con frutas del spritesheet `fruits.png` y puntuaciones reales en Supabase, añadiendo una entrada al registro de motores.
@@ -150,27 +150,27 @@ Convenciones:
 
 ## Criterios de aceptación
 
-- [ ] `npx tsc --noEmit`, `npm run lint` y `npm run build` terminan sin errores.
-- [ ] `/juegos` muestra la card "SNAKE" con `cover-snake` y ya no muestra "SERPENTINA".
-- [ ] `/juegos/snake` carga mostrando "Mejor global" y "Partidas".
-- [ ] `/juegos/snake/jugar` renderiza el canvas con la serpiente y una fruta del spritesheet, no el `.game-arena` simulado.
-- [ ] La serpiente empieza con 3 segmentos y el HUD muestra "Longitud 3".
-- [ ] Flechas y WASD cambian la dirección; pulsar la dirección opuesta no invierte la serpiente.
-- [ ] Dos giros rápidos consecutivos (p. ej. `↑` `←`) se aplican ambos en ticks sucesivos.
-- [ ] Comer una fruta en nivel 1 suma exactamente 10 puntos y la longitud sube en 1.
-- [ ] Tras 5 frutas el nivel pasa a 2, la serpiente se mueve más rápido y cada fruta suma 20.
-- [ ] Cada fruta nueva aparece en una celda no ocupada por la serpiente.
-- [ ] Chocar con la pared abre el modal de fin de partida sin pulsar FIN.
-- [ ] Chocar con el propio cuerpo abre el modal de fin de partida sin pulsar FIN.
-- [ ] Flechas y espacio no hacen scroll de la página mientras se juega.
-- [ ] PAUSA congela el juego y REANUDAR continúa sin perder estado; `P`/`Escape` hacen lo mismo.
-- [ ] FIN abre el modal con la puntuación real.
-- [ ] JUGAR DE NUEVO empieza en nivel 1, longitud 3 y score 0.
-- [ ] GUARDAR PUNTUACIÓN inserta una fila con `game_id = 'snake'` visible en `/juegos/snake` y `/salon?juego=snake`; si falla, el modal muestra el error y permite reintentar.
-- [ ] `/juegos/asteroids/jugar`, `/juegos/tetris/jugar` y `/juegos/arkanoid/jugar` siguen funcionando igual.
-- [ ] Un juego sin motor (p. ej. `/juegos/gloton/jugar`) sigue mostrando el `.game-arena` simulado.
-- [ ] SALIR y volver a entrar no duplica input ni deja errores en consola (incluido Strict Mode en `npm run dev`).
-- [ ] A 400px de ancho el canvas se escala dentro de `.crt-screen` sin scroll horizontal.
+- [x] `npx tsc --noEmit`, `npm run lint` y `npm run build` terminan sin errores.
+- [x] `/juegos` muestra la card "SNAKE" con `cover-snake` y ya no muestra "SERPENTINA".
+- [x] `/juegos/snake` carga mostrando "Mejor global" y "Partidas".
+- [x] `/juegos/snake/jugar` renderiza el canvas con la serpiente y una fruta del spritesheet, no el `.game-arena` simulado.
+- [x] La serpiente empieza con 3 segmentos y el HUD muestra "Longitud 3".
+- [x] Flechas y WASD cambian la dirección; pulsar la dirección opuesta no invierte la serpiente.
+- [x] Dos giros rápidos consecutivos (p. ej. `↑` `←`) se aplican ambos en ticks sucesivos.
+- [x] Comer una fruta en nivel 1 suma exactamente 10 puntos y la longitud sube en 1.
+- [x] Tras 5 frutas el nivel pasa a 2, la serpiente se mueve más rápido y cada fruta suma 20.
+- [x] Cada fruta nueva aparece en una celda no ocupada por la serpiente.
+- [x] Chocar con la pared abre el modal de fin de partida sin pulsar FIN.
+- [x] Chocar con el propio cuerpo abre el modal de fin de partida sin pulsar FIN.
+- [x] Flechas y espacio no hacen scroll de la página mientras se juega.
+- [x] PAUSA congela el juego y REANUDAR continúa sin perder estado; `P`/`Escape` hacen lo mismo.
+- [x] FIN abre el modal con la puntuación real.
+- [x] JUGAR DE NUEVO empieza en nivel 1, longitud 3 y score 0.
+- [x] GUARDAR PUNTUACIÓN inserta una fila con `game_id = 'snake'` visible en `/juegos/snake` y `/salon?juego=snake`; si falla, el modal muestra el error y permite reintentar.
+- [x] `/juegos/asteroids/jugar`, `/juegos/tetris/jugar` y `/juegos/arkanoid/jugar` siguen funcionando igual.
+- [x] Un juego sin motor (p. ej. `/juegos/gloton/jugar`) sigue mostrando el `.game-arena` simulado.
+- [x] SALIR y volver a entrar no duplica input ni deja errores en consola (incluido Strict Mode en `npm run dev`).
+- [x] A 400px de ancho el canvas se escala dentro de `.crt-screen` sin scroll horizontal.
 
 ## Decisiones
 
