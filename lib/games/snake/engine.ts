@@ -77,6 +77,52 @@ export class SnakeEngine {
     this.spawnFruit();
   }
 
+  private tickMs() {
+    return Math.max(MIN_TICK_MS, BASE_TICK_MS - (this.level - 1) * TICK_STEP_MS);
+  }
+
+  /** Acumula dt (s) y avanza un paso por cada tickMs transcurrido. */
+  private update(dt: number) {
+    this.acc += dt * 1000;
+    while (this.state === "playing" && this.acc >= this.tickMs()) {
+      this.acc -= this.tickMs();
+      this.step();
+    }
+  }
+
+  /** Un paso de la serpiente: giro encolado, movimiento, colisiones y fruta. */
+  private step() {
+    const turn = this.dirQueue.shift();
+    if (turn) this.dir = turn;
+
+    const head = this.snake[0];
+    const next = { x: head.x + this.dir.x, y: head.y + this.dir.y };
+
+    if (next.x < 0 || next.x >= COLS || next.y < 0 || next.y >= ROWS) {
+      this.state = "gameover";
+      return;
+    }
+
+    const eating = next.x === this.fruit.x && next.y === this.fruit.y;
+    // Sin comer, la cola se mueve este paso: su celda actual queda libre.
+    const body = eating ? this.snake : this.snake.slice(0, -1);
+    if (body.some((c) => c.x === next.x && c.y === next.y)) {
+      this.state = "gameover";
+      return;
+    }
+
+    this.snake.unshift(next);
+    if (!eating) {
+      this.snake.pop();
+      return;
+    }
+
+    this.score += 10 * this.level;
+    this.fruitsEaten++;
+    if (this.fruitsEaten % FRUITS_PER_LEVEL === 0) this.level++;
+    if (!this.spawnFruit()) this.state = "gameover";
+  }
+
   /** Coloca la fruta en una celda libre aleatoria. Devuelve false si el tablero está lleno. */
   private spawnFruit(): boolean {
     const occupied = new Set(this.snake.map((c) => c.y * COLS + c.x));
