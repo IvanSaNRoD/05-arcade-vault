@@ -1,6 +1,6 @@
 # SPEC 09 — Juego Snake en Next.js
 
-> **Status:** Borrador
+> **Status:** Aprobada
 > **Depends on:** SPEC 05, SPEC 06, SPEC 08
 > **Date:** 2026-09-25
 > **Objective:** Crear desde cero un motor TypeScript + Client Component de Snake estilo Nokia que sustituye el juego simulado `serpentina` (renombrado a `snake`), con frutas del spritesheet `fruits.png` y puntuaciones reales en Supabase, añadiendo una entrada al registro de motores.
