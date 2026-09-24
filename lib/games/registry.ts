@@ -1,6 +1,7 @@
 import type { ForwardRefExoticComponent, RefAttributes } from "react";
 import { AsteroidsGame } from "@/components/games/asteroids-game";
 import { ArkanoidGame } from "@/components/games/arkanoid-game";
+import { SnakeGame } from "@/components/games/snake-game";
 import { TetrisGame } from "@/components/games/tetris-game";
 
 export interface GameEngineHandle {
@@ -29,4 +30,5 @@ export const GAME_ENGINES: Record<string, GameEngineEntry> = {
   asteroids: { component: AsteroidsGame },
   tetris: { component: TetrisGame, secondaryLabel: "Líneas" },
   arkanoid: { component: ArkanoidGame }, // tiene vidas → corazones, sin secondaryLabel
+  snake: { component: SnakeGame, secondaryLabel: "Longitud" },
 };
