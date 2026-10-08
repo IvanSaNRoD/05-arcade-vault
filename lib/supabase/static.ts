@@ -8,5 +8,13 @@ export function createClient() {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    // Sin timeout, un Supabase que no contesta deja la página colgada; con él,
+    // la query falla y lib/games.ts cae al catálogo local.
+    {
+      global: {
+        fetch: (input, init) =>
+          fetch(input, { ...init, signal: AbortSignal.timeout(5000) }),
+      },
+    },
   );
 }

@@ -11,6 +11,7 @@ export interface Game {
   color: GameColor;
   best: number;
   plays: string;
+  offline?: boolean; // datos del catálogo local (Supabase caído): no se guardan puntuaciones
 }
 
 export const CATEGORIES = ["TODOS", "ARCADE", "PUZZLE", "SHOOTER", "VERSUS"] as const;

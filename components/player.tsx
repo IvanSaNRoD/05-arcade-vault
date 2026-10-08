@@ -1,14 +1,55 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import {
   GAME_ENGINES,
   type GameEngineHandle,
   type GameEngineState,
 } from "@/lib/games/registry";
+import {
+  DEFAULT_SKIN,
+  SKIN_IDS,
+  SKIN_LABELS,
+  readStoredSkin,
+  subscribeSkin,
+  writeStoredSkin,
+  type SkinId,
+} from "@/lib/games/skins";
 import type { Game } from "@/lib/games";
 import { saveScore } from "@/lib/scores-client";
+
+function SkinSelector({
+  skin,
+  onChange,
+}: {
+  skin: SkinId;
+  onChange: (id: SkinId) => void;
+}) {
+  return (
+    <div className="flex gap-2" role="group" aria-label="Skin">
+      {SKIN_IDS.map((id) => (
+        <button
+          key={id}
+          className={id === skin ? "btn yellow" : "btn ghost"}
+          aria-pressed={id === skin}
+          onClick={(e) => {
+            onChange(id);
+            e.currentTarget.blur();
+          }}
+        >
+          {SKIN_LABELS[id]}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 export function Player({ game }: { game: Game }) {
   const engineEntry = GAME_ENGINES[game.id];
@@ -25,6 +66,12 @@ export function Player({ game }: { game: Game }) {
   const [saveError, setSaveError] = useState(false);
   const scoreRef = useRef(0);
   const engineRef = useRef<GameEngineHandle>(null);
+  const skin = useSyncExternalStore(
+    subscribeSkin,
+    readStoredSkin,
+    () => DEFAULT_SKIN,
+  );
+  const [skinsAvailable, setSkinsAvailable] = useState(false);
 
   // Simulated gameplay (juegos sin motor real): corre solo en el cliente, así el
   // render del servidor (score 0) siempre coincide. El nivel sube en el mismo tick
@@ -46,7 +93,13 @@ export function Player({ game }: { game: Game }) {
     setLevel(state.level);
     setPaused(state.phase === "paused");
     setOver(state.phase === "gameover");
+    setSkinsAvailable(typeof engineRef.current?.setSkin === "function");
   }, []);
+
+  const changeSkin = (id: SkinId) => {
+    writeStoredSkin(id);
+    engineRef.current?.setSkin?.(id);
+  };
 
   const restart = () => {
     if (hasEngine) {
@@ -107,6 +160,7 @@ export function Player({ game }: { game: Game }) {
           </div>
         </div>
         <div className="hud-actions">
+          {skinsAvailable && <SkinSelector skin={skin} onChange={changeSkin} />}
           <button
             className="btn yellow"
             onClick={() => {
@@ -158,6 +212,11 @@ export function Player({ game }: { game: Game }) {
                 <div className="mono mt-2.5 text-[11px] tracking-[0.16em] text-ink-dim">
                   PULSA REANUDAR PARA CONTINUAR
                 </div>
+                {skinsAvailable && (
+                  <div className="mt-4 flex justify-center">
+                    <SkinSelector skin={skin} onChange={changeSkin} />
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -180,7 +239,11 @@ export function Player({ game }: { game: Game }) {
             <h2 id="game-over-title">FIN DEL JUEGO</h2>
             <div className="final-label">PUNTUACIÓN FINAL</div>
             <div className="final">{score.toLocaleString("es-ES")}</div>
-            {!saved ? (
+            {game.offline ? (
+              <div className="toast-saved text-magenta">
+                ▸ GUARDADO NO DISPONIBLE_ SIN CONEXIÓN CON EL SERVIDOR
+              </div>
+            ) : !saved ? (
               <div className="input-row">
                 <input
                   value={name}
