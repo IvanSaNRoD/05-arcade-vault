@@ -17,6 +17,7 @@ Write a spec before implementing features. Specs live in `specs/NN-slug.md` (01�
 - `/spec` — design a spec. `/spec-impl` — implement it (auto-creates branch `spec-NN-slug`, see `specs/.spec-config.yml`). From [Klerith/fernando-skills](https://github.com/Klerith/fernando-skills), installed in `.agents/skills/` and symlinked into `.claude/skills/` (`skills-lock.json`).
 - `/spec-game <name>` — project skill (`.claude/skills/spec-game/`), `/spec` specialized for adding a new game + leaderboard. Follows `porting-guide.md`. Use it before porting any game.
 - `/frontend-design` — always use it to design UI.
+- `game-planner` subagent (`.claude/agents/game-planner.md`) — decides which game to add next, before `/spec-game`. Persistent history of suggestions in `.claude/agent-memory/game-planner/MEMORY.md`.
 
 ## Architecture
 
