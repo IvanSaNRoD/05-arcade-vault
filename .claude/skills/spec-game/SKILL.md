@@ -22,6 +22,9 @@ Vanilla prototypes available to port:
 Engines already ported (these ids are taken):
 !`ls lib/games/ 2>/dev/null || echo "No engines yet"`
 
+Playable games catalog (consult this instead of the Supabase `games` table):
+!`cat references/implemented-games.md 2>/dev/null || echo "references/implemented-games.md does not exist yet"`
+
 Does the multi-engine registry already exist in the player?
 !`grep -n "isAsteroids\|GAME_ENGINES" components/player.tsx 2>/dev/null || echo "player.tsx not found"`
 
@@ -53,7 +56,8 @@ Mandatory reads, in this order, before asking anything:
 1. `.claude/skills/spec/SKILL.md` and `.claude/skills/spec/template.md` — method, section order, valid header states, implementation-plan rules (each step commitable, split anything over 30–50 lines), acceptance-criteria anti-patterns.
 2. `porting-guide.md` in this skill's directory — the engine contract, the client component shape, the player registry, the CSS cover pattern, the Supabase row, the verification gate, and a per-prototype fact sheet.
 3. `specs/05-*.md` and `specs/06-*.md` — the two implemented precedents, and the conventions (language, wording, heading names) any new spec must match.
-4. `CLAUDE.md` and `AGENTS.md` at the repo root.
+4. `references/implemented-games.md` — the catalog of games already implemented (ids, titles, categories, covers, colors, seeds taken). This is the source of truth for what already exists; consult it instead of querying the Supabase `games` table.
+5. `CLAUDE.md` and `AGENTS.md` at the repo root.
 
 Then resolve `$ARGUMENTS` against the prototypes listed in the session context, matching loosely (`tetris` → `03-tetris`, `arkanoid` → `04-arkanoid`).
 
@@ -96,7 +100,8 @@ The **technical content** comes from `porting-guide.md`. The implementation plan
 3. `components/games/<slug>-game.tsx`.
 4. The `.cover-<slug>` class in `app/globals.css`.
 5. The `insert into games (...)` statement, as a manual step.
-6. The verification gate.
+6. Appending the new game's row to `references/implemented-games.md` — same columns as its catalog table (id, title, category, color, cover, best_seed/plays_seed, secondaryLabel, spec NN) plus engine/bridge paths — so the doc stays in sync with the `games` table.
+7. The verification gate.
 
 Every step names real paths and ends with how to verify it. No step invents a file that neither the user confirmed nor `porting-guide.md` prescribes.
 
@@ -115,6 +120,7 @@ Every step names real paths and ends with how to verify it. No step invents a fi
 - **Always read `.claude/skills/spec/SKILL.md` and `.claude/skills/spec/template.md` before writing the spec file.** They are the source of truth for the method and the document shape; this skill only layers game-specific knowledge on top. Where the two disagree on format, `template.md` wins.
 - **Never write code and never implement.** The only file you create is the spec.
 - **Never call Supabase tools**, not even read-only ones. The `insert into games (...)` statement lives inside the spec as a manual step.
+- **Always include a step that registers the game in `references/implemented-games.md`**, right after the `insert into games (...)` step, so that doc stays in sync with the `games` table and remains the catalog to consult instead of the database.
 - **Never invent the prototype's behavior.** Every gameplay claim in the spec must come from a file you actually read in Phase 1, or from an answer the user gave in Phase 2.
 - **Respect the engine contract verbatim** — method names, state field names, file paths. A game that renames `forceGameOver()` or drops `phase` breaks `components/player.tsx`.
 - **Never propose implementing the spec after saving it.** Your job ends at the confirmation message.
