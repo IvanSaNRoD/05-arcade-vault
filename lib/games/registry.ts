@@ -3,12 +3,14 @@ import { AsteroidsGame } from "@/components/games/asteroids-game";
 import { ArkanoidGame } from "@/components/games/arkanoid-game";
 import { SnakeGame } from "@/components/games/snake-game";
 import { TetrisGame } from "@/components/games/tetris-game";
+import type { SkinId } from "@/lib/games/skins";
 
 export interface GameEngineHandle {
   pause(): void;
   resume(): void;
   forceGameOver(): void;
   restart(): void;
+  setSkin?(id: SkinId): void; // opcional hasta que cada juego tenga su spec
 }
 
 export interface GameEngineState {

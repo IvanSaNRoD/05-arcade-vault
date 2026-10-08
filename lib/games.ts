@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/static";
+import { FALLBACK_GAMES } from "@/lib/games-fallback";
 import type { Category, Game, GameColor } from "@/lib/games-types";
 
 export type { Category, Game, GameColor } from "@/lib/games-types";
@@ -40,10 +41,12 @@ function toGame(row: GameRow, stats?: LiveStats): Game {
 
 export async function getGames(): Promise<Game[]> {
   const supabase = createClient();
-  const [{ data: rows }, { data: scores }] = await Promise.all([
+  const [{ data: rows, error }, { data: scores }] = await Promise.all([
     supabase.from("games").select("*"),
     supabase.from("scores").select("game_id, score"),
   ]);
+
+  if (error) return FALLBACK_GAMES;
 
   const statsByGame = new Map<string, LiveStats>();
   for (const s of scores ?? []) {
@@ -58,11 +61,12 @@ export async function getGames(): Promise<Game[]> {
 
 export async function getGame(id: string): Promise<Game | undefined> {
   const supabase = createClient();
-  const [{ data: row }, { data: scores }] = await Promise.all([
+  const [{ data: row, error }, { data: scores }] = await Promise.all([
     supabase.from("games").select("*").eq("id", id).maybeSingle(),
     supabase.from("scores").select("score").eq("game_id", id),
   ]);
 
+  if (error) return FALLBACK_GAMES.find((g) => g.id === id);
   if (!row) return undefined;
 
   const plays = scores?.length ?? 0;

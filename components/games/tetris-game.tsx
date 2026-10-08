@@ -8,12 +8,14 @@ import {
   useState,
 } from "react";
 import { TetrisEngine, type TetrisState } from "@/lib/games/tetris/engine";
+import { readStoredSkin, type SkinId } from "@/lib/games/skins";
 
 export interface TetrisGameHandle {
   pause: () => void;
   resume: () => void;
   forceGameOver: () => void;
   restart: () => void;
+  setSkin?: (id: SkinId) => void;
 }
 
 interface TetrisGameProps {
@@ -41,6 +43,7 @@ export const TetrisGame = forwardRef<TetrisGameHandle, TetrisGameProps>(
       if (!canvas) return;
       const engine = new TetrisEngine(canvas, setState);
       engineRef.current = engine;
+      engine.setSkin(readStoredSkin());
       engine.start();
       return () => {
         engine.destroy();
@@ -55,6 +58,7 @@ export const TetrisGame = forwardRef<TetrisGameHandle, TetrisGameProps>(
         resume: () => engineRef.current?.resume(),
         forceGameOver: () => engineRef.current?.forceGameOver(),
         restart: () => engineRef.current?.restart(),
+        setSkin: (id) => engineRef.current?.setSkin(id),
       }),
       [],
     );
