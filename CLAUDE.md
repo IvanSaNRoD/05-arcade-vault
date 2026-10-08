@@ -18,6 +18,7 @@ Write a spec before implementing features. Specs live in `specs/NN-slug.md` (01�
 - `/spec-game <name>` — project skill (`.claude/skills/spec-game/`), `/spec` specialized for adding a new game + leaderboard. Follows `porting-guide.md`. Use it before porting any game.
 - `/frontend-design` — always use it to design UI.
 - `game-planner` subagent (`.claude/agents/game-planner.md`) — decides which game to add next, before `/spec-game`. Persistent history of suggestions in `.claude/agent-memory/game-planner/MEMORY.md`.
+- `game-jam` subagent (`.claude/agents/game-jam.md`) — given a game name (+ optional theme), writes 3 draft spec variants (A clásica / B progresión / C twist) in `specs/game-jam/<game-id>/`. Adopt one by moving it to `specs/NN-slug.md`. History in `.claude/agent-memory/game-jam/MEMORY.md`.
 
 ## Architecture
 
