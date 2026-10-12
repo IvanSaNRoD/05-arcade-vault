@@ -24,6 +24,7 @@ import {
 } from "@/lib/games/skins";
 import type { Game } from "@/lib/games";
 import { saveScore } from "@/lib/scores-client";
+import { TouchControls } from "@/components/touch-controls";
 
 function SkinSelector({
   skin,
@@ -189,6 +190,12 @@ export function Player({ game }: { game: Game }) {
         </div>
       </div>
 
+      {engineEntry?.touchControls && (
+        <div className="rotate-hint mono" role="status">
+          GIRA EL MÓVIL A VERTICAL PARA JUGAR
+        </div>
+      )}
+
       <div className="crt">
         <div className="crt-screen">
           {engineEntry ? (
@@ -227,6 +234,10 @@ export function Player({ game }: { game: Game }) {
           <span>CARGA · 1MB</span>
         </div>
       </div>
+
+      {engineEntry?.touchControls && (
+        <TouchControls layout={engineEntry.touchControls} />
+      )}
 
       {over && (
         <div className="modal-bd">
