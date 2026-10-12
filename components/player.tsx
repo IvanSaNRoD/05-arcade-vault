@@ -34,7 +34,7 @@ function SkinSelector({
   onChange: (id: SkinId) => void;
 }) {
   return (
-    <div className="flex gap-2" role="group" aria-label="Skin">
+    <div className="flex flex-wrap gap-2" role="group" aria-label="Skin">
       {SKIN_IDS.map((id) => (
         <button
           key={id}
