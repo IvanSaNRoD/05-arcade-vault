@@ -1,6 +1,6 @@
 # SPEC 11 — Gamepad MK-II para móvil
 
-> **Status:** Aprobado
+> **Status:** Implementado
 > **Depends on:** SPEC 10
 > **Date:** 2026-10-12
 > **Objective:** Sustituir los botones táctiles de SPEC 10 por un gamepad fijo (D-pad + A/B) con la apariencia de `references/resources/gamepad-assets/`, visible solo en dispositivos táctiles o pantallas de ≤720 px, con un mapeo de teclas por juego.
