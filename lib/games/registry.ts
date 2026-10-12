@@ -44,9 +44,67 @@ export interface GameEngineEntry {
   touchControls?: TouchControlsLayout;
 }
 
+const LEFT = { code: "ArrowLeft", key: "ArrowLeft" };
+const RIGHT = { code: "ArrowRight", key: "ArrowRight" };
+const UP = { code: "ArrowUp", key: "ArrowUp" };
+const DOWN = { code: "ArrowDown", key: "ArrowDown" };
+const SPACE = { code: "Space", key: " " };
+
 export const GAME_ENGINES: Record<string, GameEngineEntry> = {
-  asteroids: { component: AsteroidsGame },
-  tetris: { component: TetrisGame, secondaryLabel: "Líneas" },
-  arkanoid: { component: ArkanoidGame }, // tiene vidas → corazones, sin secondaryLabel
-  snake: { component: SnakeGame, secondaryLabel: "Longitud" },
+  asteroids: {
+    component: AsteroidsGame,
+    touchControls: {
+      variant: "row",
+      left: [
+        { ...LEFT, label: "↺", ariaLabel: "Girar a la izquierda" },
+        { ...RIGHT, label: "↻", ariaLabel: "Girar a la derecha" },
+      ],
+      right: [
+        { ...UP, label: "▲", ariaLabel: "Propulsar" },
+        { ...SPACE, label: "FUEGO", ariaLabel: "Disparar" },
+      ],
+    },
+  },
+  tetris: {
+    component: TetrisGame,
+    secondaryLabel: "Líneas",
+    touchControls: {
+      variant: "row",
+      left: [
+        { ...LEFT, label: "←", ariaLabel: "Mover a la izquierda", repeat: true },
+        { ...RIGHT, label: "→", ariaLabel: "Mover a la derecha", repeat: true },
+        { ...DOWN, label: "↓", ariaLabel: "Bajar", repeat: true },
+      ],
+      right: [
+        { ...UP, label: "ROTAR", ariaLabel: "Rotar pieza" },
+        { ...SPACE, label: "CAÍDA", ariaLabel: "Caída rápida" },
+      ],
+    },
+  },
+  // tiene vidas → corazones, sin secondaryLabel
+  arkanoid: {
+    component: ArkanoidGame,
+    touchControls: {
+      variant: "row",
+      left: [
+        { ...LEFT, label: "←", ariaLabel: "Mover a la izquierda" },
+        { ...RIGHT, label: "→", ariaLabel: "Mover a la derecha" },
+      ],
+      right: [],
+    },
+  },
+  snake: {
+    component: SnakeGame,
+    secondaryLabel: "Longitud",
+    touchControls: {
+      variant: "dpad", // orden fijo: up, left, right, down
+      left: [
+        { ...UP, label: "↑", ariaLabel: "Arriba" },
+        { ...LEFT, label: "←", ariaLabel: "Izquierda" },
+        { ...RIGHT, label: "→", ariaLabel: "Derecha" },
+        { ...DOWN, label: "↓", ariaLabel: "Abajo" },
+      ],
+      right: [],
+    },
+  },
 };
