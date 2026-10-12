@@ -21,18 +21,17 @@ export interface GameEngineState {
 }
 
 export interface TouchButton {
-  label: string; // texto visible: "←", "FUEGO", …
-  ariaLabel: string; // "Girar a la izquierda", "Disparar", …
+  label: string; // leyenda bajo A/B ("FUEGO", …); ignorada en el D-pad
+  ariaLabel: string; // "Disparar", "Girar a la izquierda", …
   code: string; // KeyboardEvent.code: "ArrowLeft", "Space", …
   key: string; // KeyboardEvent.key: "ArrowLeft", " ", …
   repeat?: boolean; // auto-repeat mientras se mantiene (solo Tetris ← → ↓)
 }
 
-export interface TouchControlsLayout {
-  variant: "row" | "dpad"; // "dpad" = cruz 3×3 en el grupo izquierdo (Snake)
-  left: TouchButton[]; // en "dpad", orden fijo: up, left, right, down
-  right: TouchButton[];
-}
+export type GamepadSlot = "up" | "down" | "left" | "right" | "a" | "b";
+
+// null = slot no usado por el juego → atenuado y disabled
+export type GamepadLayout = Record<GamepadSlot, TouchButton | null>;
 
 export interface GameEngineEntry {
   component: ForwardRefExoticComponent<
@@ -40,8 +39,8 @@ export interface GameEngineEntry {
   >;
   // Sustituye "Vidas" + corazones por esta etiqueta + un número (juegos sin vidas).
   secondaryLabel?: string;
-  // Botones táctiles bajo el CRT; sin él, no se muestran controles.
-  touchControls?: TouchControlsLayout;
+  // Gamepad bajo el CRT; sin él, no se muestra.
+  touchControls?: GamepadLayout;
 }
 
 const LEFT = { code: "ArrowLeft", key: "ArrowLeft" };
@@ -54,57 +53,48 @@ export const GAME_ENGINES: Record<string, GameEngineEntry> = {
   asteroids: {
     component: AsteroidsGame,
     touchControls: {
-      variant: "row",
-      left: [
-        { ...LEFT, label: "↺", ariaLabel: "Girar a la izquierda" },
-        { ...RIGHT, label: "↻", ariaLabel: "Girar a la derecha" },
-      ],
-      right: [
-        { ...UP, label: "▲", ariaLabel: "Propulsar" },
-        { ...SPACE, label: "FUEGO", ariaLabel: "Disparar" },
-      ],
+      up: { ...UP, label: "▲", ariaLabel: "Propulsar" },
+      down: null,
+      left: { ...LEFT, label: "↺", ariaLabel: "Girar a la izquierda" },
+      right: { ...RIGHT, label: "↻", ariaLabel: "Girar a la derecha" },
+      a: { ...SPACE, label: "FUEGO", ariaLabel: "Disparar" },
+      b: { ...UP, label: "PROPULSAR", ariaLabel: "Propulsar" },
     },
   },
   tetris: {
     component: TetrisGame,
     secondaryLabel: "Líneas",
     touchControls: {
-      variant: "row",
-      left: [
-        { ...LEFT, label: "←", ariaLabel: "Mover a la izquierda", repeat: true },
-        { ...RIGHT, label: "→", ariaLabel: "Mover a la derecha", repeat: true },
-        { ...DOWN, label: "↓", ariaLabel: "Bajar", repeat: true },
-      ],
-      right: [
-        { ...UP, label: "ROTAR", ariaLabel: "Rotar pieza" },
-        { ...SPACE, label: "CAÍDA", ariaLabel: "Caída rápida" },
-      ],
+      up: { ...UP, label: "↑", ariaLabel: "Rotar pieza" },
+      down: { ...DOWN, label: "↓", ariaLabel: "Bajar", repeat: true },
+      left: { ...LEFT, label: "←", ariaLabel: "Mover a la izquierda", repeat: true },
+      right: { ...RIGHT, label: "→", ariaLabel: "Mover a la derecha", repeat: true },
+      a: { ...UP, label: "ROTAR", ariaLabel: "Rotar pieza" },
+      b: { ...SPACE, label: "CAÍDA", ariaLabel: "Caída rápida" },
     },
   },
   // tiene vidas → corazones, sin secondaryLabel
   arkanoid: {
     component: ArkanoidGame,
     touchControls: {
-      variant: "row",
-      left: [
-        { ...LEFT, label: "←", ariaLabel: "Mover a la izquierda" },
-        { ...RIGHT, label: "→", ariaLabel: "Mover a la derecha" },
-      ],
-      right: [],
+      up: null,
+      down: null,
+      left: { ...LEFT, label: "←", ariaLabel: "Mover a la izquierda" },
+      right: { ...RIGHT, label: "→", ariaLabel: "Mover a la derecha" },
+      a: null,
+      b: null,
     },
   },
   snake: {
     component: SnakeGame,
     secondaryLabel: "Longitud",
     touchControls: {
-      variant: "dpad", // orden fijo: up, left, right, down
-      left: [
-        { ...UP, label: "↑", ariaLabel: "Arriba" },
-        { ...LEFT, label: "←", ariaLabel: "Izquierda" },
-        { ...RIGHT, label: "→", ariaLabel: "Derecha" },
-        { ...DOWN, label: "↓", ariaLabel: "Abajo" },
-      ],
-      right: [],
+      up: { ...UP, label: "↑", ariaLabel: "Arriba" },
+      down: { ...DOWN, label: "↓", ariaLabel: "Abajo" },
+      left: { ...LEFT, label: "←", ariaLabel: "Izquierda" },
+      right: { ...RIGHT, label: "→", ariaLabel: "Derecha" },
+      a: null,
+      b: null,
     },
   },
 };
