@@ -20,12 +20,28 @@ export interface GameEngineState {
   phase: "playing" | "dead" | "gameover" | "paused";
 }
 
+export interface TouchButton {
+  label: string; // texto visible: "←", "FUEGO", …
+  ariaLabel: string; // "Girar a la izquierda", "Disparar", …
+  code: string; // KeyboardEvent.code: "ArrowLeft", "Space", …
+  key: string; // KeyboardEvent.key: "ArrowLeft", " ", …
+  repeat?: boolean; // auto-repeat mientras se mantiene (solo Tetris ← → ↓)
+}
+
+export interface TouchControlsLayout {
+  variant: "row" | "dpad"; // "dpad" = cruz 3×3 en el grupo izquierdo (Snake)
+  left: TouchButton[]; // en "dpad", orden fijo: up, left, right, down
+  right: TouchButton[];
+}
+
 export interface GameEngineEntry {
   component: ForwardRefExoticComponent<
     { onStateChange: (s: GameEngineState) => void } & RefAttributes<GameEngineHandle>
   >;
   // Sustituye "Vidas" + corazones por esta etiqueta + un número (juegos sin vidas).
   secondaryLabel?: string;
+  // Botones táctiles bajo el CRT; sin él, no se muestran controles.
+  touchControls?: TouchControlsLayout;
 }
 
 export const GAME_ENGINES: Record<string, GameEngineEntry> = {
