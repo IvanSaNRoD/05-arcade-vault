@@ -2,6 +2,9 @@
 // Behavior kept identical to the original; only adapted to avoid module-level
 // mutable state (board/current/next become TetrisEngine instance fields).
 
+import { DEFAULT_SKIN, type SkinId } from "@/lib/games/skins";
+import { TETRIS_SKINS, type TetrisPalette } from "./skins";
+
 export const W = 800;
 export const H = 600;
 
@@ -18,21 +21,6 @@ const PREVIEW_BLOCK = 30;
 const PREVIEW_X = BOARD_X + COLS * BLOCK + 60;
 const PREVIEW_Y = 60;
 
-// Tema oscuro fijo del prototipo (sin getComputedStyle).
-const BG_COLOR = "#1a1a25";
-const GRID_COLOR = "#22222e";
-
-export const COLORS = [
-  null,
-  "#4dd0e1", // I - cyan
-  "#ffd54f", // O - yellow
-  "#ba68c8", // T - purple
-  "#81c784", // S - green
-  "#e57373", // Z - red
-  "#90caf9", // J - pale blue
-  "#ffb74d", // L - orange
-  "#9e9e9e", // N - tuerca (gris metálico)
-];
 
 export const PIECES: (number[][] | null)[] = [
   null,
@@ -163,6 +151,8 @@ export class TetrisEngine {
   private dropInterval = 1000;
   private rafId: number | null = null;
 
+  private palette: TetrisPalette = TETRIS_SKINS[DEFAULT_SKIN];
+
   constructor(canvas: HTMLCanvasElement, onStateChange: (state: TetrisState) => void) {
     this.canvas = canvas;
     const ctx = canvas.getContext("2d");
@@ -265,6 +255,11 @@ export class TetrisEngine {
     this.emitState();
   }
 
+  /** Cambia la skin; no toca tablero, score ni estado (draw() la lee cada frame). */
+  setSkin(id: SkinId) {
+    this.palette = TETRIS_SKINS[id];
+  }
+
   /** Avanza la caída automática según `dropInterval`; bloquea y genera nueva pieza si no cabe. */
   private update(dt: number) {
     this.dropAccum += dt;
@@ -365,20 +360,53 @@ export class TetrisEngine {
   }
 
   // ── Draw ────────────────────────────────────────────────────────────────────
-  private drawBlock(px: number, py: number, colorIndex: number, size: number, alpha = 1) {
+  private drawBlock(px: number, py: number, colorIndex: number, size: number, ghost = false) {
     if (!colorIndex) return;
     const ctx = this.ctx;
-    ctx.globalAlpha = alpha;
-    ctx.fillStyle = COLORS[colorIndex] as string;
-    ctx.fillRect(px + 1, py + 1, size - 2, size - 2);
-    ctx.fillStyle = "rgba(255,255,255,0.12)";
-    ctx.fillRect(px + 1, py + 1, size - 2, 4);
-    ctx.globalAlpha = 1;
+    const { id, pieces, highlight, glow } = this.palette;
+    const color = pieces[colorIndex] as string;
+
+    if (id === "neon") {
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      if (ghost) {
+        ctx.setLineDash([4, 4]);
+      } else {
+        ctx.globalAlpha = 0.2;
+        ctx.fillStyle = color;
+        ctx.fillRect(px + 1, py + 1, size - 2, size - 2);
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = glow;
+        ctx.shadowColor = color;
+      }
+      ctx.strokeRect(px + 2, py + 2, size - 4, size - 4);
+      ctx.restore();
+    } else if (id === "retro") {
+      if (ghost) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.strokeRect(px + 3, py + 3, size - 6, size - 6);
+      } else {
+        ctx.fillStyle = color;
+        ctx.fillRect(px + 2, py + 2, size - 4, size - 4);
+      }
+    } else {
+      ctx.globalAlpha = ghost ? 0.2 : 1;
+      ctx.fillStyle = color;
+      ctx.fillRect(px + 1, py + 1, size - 2, size - 2);
+      if (highlight) {
+        ctx.fillStyle = highlight;
+        ctx.fillRect(px + 1, py + 1, size - 2, 4);
+      }
+      ctx.globalAlpha = 1;
+    }
   }
 
   private drawGrid() {
     const ctx = this.ctx;
-    ctx.strokeStyle = GRID_COLOR;
+    if (this.palette.grid === null) return;
+    ctx.strokeStyle = this.palette.grid;
     ctx.lineWidth = 0.5;
     for (let c = 1; c < COLS; c++) {
       ctx.beginPath();
@@ -396,10 +424,10 @@ export class TetrisEngine {
 
   private drawPreview() {
     const ctx = this.ctx;
-    ctx.strokeStyle = GRID_COLOR;
+    ctx.strokeStyle = this.palette.previewBorder;
     ctx.lineWidth = 1;
     ctx.strokeRect(PREVIEW_X, PREVIEW_Y, PREVIEW_SIZE, PREVIEW_SIZE);
-    ctx.fillStyle = "rgba(255,255,255,0.65)";
+    ctx.fillStyle = this.palette.label;
     ctx.font = "14px monospace";
     ctx.textAlign = "left";
     ctx.fillText("SIGUIENTE", PREVIEW_X, PREVIEW_Y - 12);
@@ -421,9 +449,15 @@ export class TetrisEngine {
   // canvas — ese rol lo cumple el HUD de React en components/player.tsx.
   draw() {
     const ctx = this.ctx;
-    ctx.fillStyle = BG_COLOR;
+    ctx.fillStyle = this.palette.background;
     ctx.fillRect(0, 0, W, H);
     this.drawGrid();
+
+    if (this.palette.frame !== null) {
+      ctx.strokeStyle = this.palette.frame;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(BOARD_X - 2, BOARD_Y, COLS * BLOCK + 4, ROWS * BLOCK);
+    }
 
     for (let r = 0; r < ROWS; r++)
       for (let c = 0; c < COLS; c++)
@@ -438,7 +472,7 @@ export class TetrisEngine {
             BOARD_Y + (gy + r) * BLOCK,
             this.current.shape[r][c],
             BLOCK,
-            0.2,
+            true,
           );
 
     for (let r = 0; r < this.current.shape.length; r++)

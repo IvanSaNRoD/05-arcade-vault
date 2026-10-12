@@ -11,12 +11,14 @@ import {
   AsteroidsEngine,
   type AsteroidsState,
 } from "@/lib/games/asteroids/engine";
+import { readStoredSkin, type SkinId } from "@/lib/games/skins";
 
 export interface AsteroidsGameHandle {
   pause: () => void;
   resume: () => void;
   forceGameOver: () => void;
   restart: () => void;
+  setSkin?: (id: SkinId) => void;
 }
 
 interface AsteroidsGameProps {
@@ -46,6 +48,7 @@ export const AsteroidsGame = forwardRef<
     if (!canvas) return;
     const engine = new AsteroidsEngine(canvas, setState);
     engineRef.current = engine;
+    engine.setSkin(readStoredSkin());
     engine.start();
     return () => {
       engine.destroy();
@@ -60,6 +63,7 @@ export const AsteroidsGame = forwardRef<
       resume: () => engineRef.current?.resume(),
       forceGameOver: () => engineRef.current?.forceGameOver(),
       restart: () => engineRef.current?.restart(),
+      setSkin: (id) => engineRef.current?.setSkin(id),
     }),
     [],
   );

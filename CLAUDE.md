@@ -17,6 +17,10 @@ Write a spec before implementing features. Specs live in `specs/NN-slug.md` (01�
 - `/spec` — design a spec. `/spec-impl` — implement it (auto-creates branch `spec-NN-slug`, see `specs/.spec-config.yml`). From [Klerith/fernando-skills](https://github.com/Klerith/fernando-skills), installed in `.agents/skills/` and symlinked into `.claude/skills/` (`skills-lock.json`).
 - `/spec-game <name>` — project skill (`.claude/skills/spec-game/`), `/spec` specialized for adding a new game + leaderboard. Follows `porting-guide.md`. Use it before porting any game.
 - `/frontend-design` — always use it to design UI.
+- `game-planner` subagent (`.claude/agents/game-planner.md`) — decides which game to add next, before `/spec-game`. Persistent history of suggestions in `.claude/agent-memory/game-planner/MEMORY.md`.
+- `game-jam` subagent (`.claude/agents/game-jam.md`) — given a game name (+ optional theme), writes 3 draft spec variants (A clásica / B progresión / C twist) in `specs/game-jam/<game-id>/`. Adopt one by moving it to `specs/NN-slug.md`. History in `.claude/agent-memory/game-jam/MEMORY.md`.
+- `skin-designer` subagent (`.claude/agents/skin-designer.md`) — checks implemented games (`references/implemented-games.md`) for 3 skins (`clasico` default / `neon` / `retro`) with dark-background contrast (≥3:1 elements, ≥4.5:1 text) and writes one draft spec per non-compliant game in `specs/skins/<id>-skins.md`. Tetris is the reference/pilot (its spec also builds the shared skin system). Never touches code. History in `.claude/agent-memory/skin-designer/MEMORY.md`.
+- `mobile-porter` subagent (`.claude/agents/mobile-porter.md`) — audits mobile-browser readiness: implemented games vs SPEC 10 (`touchControls` mapping, player styles) and every route at 375/768 px (overflow, touch targets ≥44 px, inputs ≥16 px, viewport, safe-area). Writes one draft spec per non-compliant game (`specs/mobile/<id>-mobile.md`) + one site spec (`specs/mobile/sitio-responsive.md`). Never touches code. History in `.claude/agent-memory/mobile-porter/MEMORY.md`.
 
 ## Architecture
 
