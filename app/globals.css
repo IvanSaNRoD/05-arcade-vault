@@ -956,55 +956,183 @@ html:has(.av-player) { overscroll-behavior-y: none; }
 .av-player { touch-action: manipulation; }
 .crt-screen canvas { touch-action: none; }
 
-/* Solo en dispositivos de puntero grueso (táctiles): escritorio sin cambios. */
-.touch-controls { display: none; }
-@media (pointer: coarse) {
-  .touch-controls {
-    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px;
-    margin-top: 18px;
-    padding: 14px;
-    border: 1px solid var(--line);
-    background: var(--bg-2);
-  }
+/* ===== gamepad MK-II (SPEC 11) ===== */
+/* Visible solo en táctil o pantallas estrechas: escritorio ancho sin cambios. */
+.gp {
+  display: none;
+  position: relative;
+  width: 100%;
+  max-width: 760px;
+  margin: 18px auto 0;
+  padding: 16px 22px 14px;
+  background: linear-gradient(180deg, #1c1c28 0%, #0c0c14 100%);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  box-shadow:
+    0 30px 80px -30px rgba(0, 245, 255, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.02),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.6);
 }
-.tc-group { display: flex; gap: 10px; }
-.touch-controls.dpad .tc-left {
-  display: grid;
-  grid-template-columns: repeat(3, 56px);
-  grid-template-rows: repeat(3, 56px);
-  gap: 6px;
-  margin: 0 auto;
+@media (pointer: coarse), (max-width: 720px) {
+  .gp { display: block; }
 }
-.tc-left [data-dir="up"] { grid-area: 1 / 2; }
-.tc-left [data-dir="left"] { grid-area: 2 / 1; }
-.tc-left [data-dir="right"] { grid-area: 2 / 3; }
-.tc-left [data-dir="down"] { grid-area: 3 / 2; }
-.tc-btn {
-  min-width: 56px; min-height: 56px;
-  padding: 0 14px;
-  display: inline-flex; align-items: center; justify-content: center;
-  font-family: var(--pixel); font-size: 14px; letter-spacing: 0.08em;
-  color: var(--cyan);
-  background: #050507;
-  border: 2px solid var(--cyan);
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,245,255,0.25);
-  cursor: pointer;
+.gp::before {
+  content: ""; position: absolute; inset: 4px;
+  border: 1px solid rgba(0, 245, 255, 0.14);
+  border-radius: 18px; pointer-events: none;
+}
+.gp::after {
+  content: ""; position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 8px 8px;
+  border-radius: inherit; pointer-events: none; opacity: 0.6;
+}
+.gp-body {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 18px; align-items: center;
+  padding: 24px 12px;
+  position: relative; z-index: 1;
+}
+.gp-col { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.gp-col-right { justify-self: end; }
+.gp-col-left { justify-self: start; }
+
+/* Botones: sin gestos del navegador al tocar. */
+.dp, .ab {
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;
 }
-.tc-btn[data-pressed] {
-  background: rgba(0,245,255,0.18);
-  box-shadow: 0 0 18px rgba(0,245,255,0.6), inset 0 0 10px rgba(0,245,255,0.35);
-  transform: scale(0.95);
+
+/* D-pad */
+.gp-dpad { position: relative; width: 156px; height: 156px; }
+.dp {
+  position: absolute;
+  width: 50px; height: 50px;
+  background: linear-gradient(180deg, #1a1a25, #0a0a12);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  color: var(--ink-dim); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; padding: 0;
+  box-shadow:
+    0 4px 0 #050507,
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.6);
+  transition: transform 80ms, box-shadow 140ms, color 140ms, border-color 140ms, background 140ms;
 }
-.tc-right .tc-btn { color: var(--magenta); border-color: var(--magenta); box-shadow: 0 0 10px rgba(255,0,110,0.25); }
-.tc-right .tc-btn[data-pressed] {
-  background: rgba(255,0,110,0.2);
-  box-shadow: 0 0 18px rgba(255,0,110,0.6), inset 0 0 10px rgba(255,0,110,0.35);
+.dp .dp-arrow { width: 22px; height: 22px; transition: filter 140ms; }
+@media (hover: hover) {
+  .dp:not(.is-off):hover { color: var(--cyan); border-color: rgba(0, 245, 255, 0.35); }
+  .ab:not(.is-off):hover .ab-ring { opacity: 0.45; }
+}
+.dp[data-pressed] {
+  transform: translateY(3px);
+  color: var(--cyan);
+  background: linear-gradient(180deg, #08161e, #030a0e);
+  border-color: var(--cyan);
+  box-shadow:
+    0 1px 0 #050507,
+    inset 0 0 16px rgba(0, 245, 255, 0.45),
+    0 0 16px rgba(0, 245, 255, 0.5);
+}
+.dp[data-pressed] .dp-arrow {
+  filter: drop-shadow(0 0 6px var(--cyan)) drop-shadow(0 0 12px var(--cyan));
+}
+.dp-up    { top: 0;    left: 53px; }
+.dp-down  { bottom: 0; left: 53px; }
+.dp-left  { left: 0;   top: 53px; }
+.dp-right { right: 0;  top: 53px; }
+
+.dp-hub {
+  position: absolute; top: 53px; left: 53px;
+  width: 50px; height: 50px;
+  background: radial-gradient(circle at 50% 50%, #181822 0%, #08080d 80%);
+  border: 1px solid rgba(0, 245, 255, 0.15);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+.dp-hub-gem {
+  width: 12px; height: 12px;
+  background: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan), inset 0 0 4px rgba(0, 0, 0, 0.5);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  animation: pulse-led 2s ease-in-out infinite;
+}
+@keyframes pulse-led { 50% { opacity: 0.35; transform: scale(0.85); } }
+@media (prefers-reduced-motion: reduce) {
+  .dp-hub-gem { animation: none; }
+}
+
+/* A / B */
+.gp-actions {
+  display: grid;
+  grid-template-columns: auto auto; gap: 22px;
+  justify-items: center; align-items: start;
+}
+.ab-cell { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.ab {
+  position: relative;
+  width: 74px; height: 74px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  background:
+    radial-gradient(circle at 32% 26%, rgba(255, 255, 255, 0.25), transparent 50%),
+    radial-gradient(circle at 50% 55%, var(--ab-mid), var(--ab-deep) 75%);
+  padding: 0; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow:
+    0 6px 0 #050507,
+    0 0 22px var(--ab-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.4);
+  transition: transform 80ms, box-shadow 140ms;
+}
+.ab.a { color: var(--magenta); --ab-mid: rgba(255, 0, 110, 0.7); --ab-deep: rgba(110, 0, 40, 0.95); --ab-glow: rgba(255, 0, 110, 0.4); }
+.ab.b { color: var(--cyan);    --ab-mid: rgba(0, 200, 230, 0.7); --ab-deep: rgba(0, 50, 70, 0.95); --ab-glow: rgba(0, 245, 255, 0.4); }
+.ab .ab-letter {
+  font-family: var(--pixel); font-size: 22px;
+  color: #fff; letter-spacing: 0.02em;
+  position: relative; z-index: 2;
+}
+.ab.a .ab-letter { text-shadow: 0 0 8px var(--magenta), 0 0 18px var(--magenta), 0 1px 0 rgba(0, 0, 0, 0.6); }
+.ab.b .ab-letter { text-shadow: 0 0 8px var(--cyan), 0 0 18px var(--cyan), 0 1px 0 rgba(0, 0, 0, 0.6); }
+.ab .ab-ring {
+  position: absolute; inset: -8px;
+  border-radius: 50%;
+  border: 1px dashed currentColor;
+  opacity: 0; transition: opacity 140ms, transform 200ms;
+}
+.ab[data-pressed] {
+  transform: translateY(4px) scale(0.97);
+  box-shadow: 0 1px 0 #050507, 0 0 36px var(--ab-glow), inset 0 0 18px rgba(0, 0, 0, 0.5);
+}
+.ab[data-pressed] .ab-ring { opacity: 1; transform: scale(1.08); }
+.ab-legend {
+  font-family: var(--pixel); font-size: 7px; letter-spacing: 0.04em;
+  color: var(--ink-dim); white-space: nowrap; text-transform: uppercase;
+}
+
+/* Slot sin uso en el juego actual */
+.dp.is-off, .ab.is-off {
+  opacity: 0.3;
+  cursor: default;
+  box-shadow: none;
+}
+
+@media (max-width: 620px) {
+  .gp { padding: 12px 14px 10px; border-radius: 16px; }
+  .gp-body { gap: 14px; padding: 18px 6px; }
+  .gp-dpad { width: 144px; height: 144px; }
+  .dp { width: 46px; height: 46px; border-radius: 8px; }
+  .dp-up, .dp-down { left: 49px; }
+  .dp-left, .dp-right { top: 49px; }
+  .dp-hub { top: 49px; left: 49px; width: 46px; height: 46px; }
+  .ab { width: 64px; height: 64px; }
+  .gp-actions { gap: 16px; }
 }
 
 /* Aviso no bloqueante: horizontal con poca altura en táctil. */
