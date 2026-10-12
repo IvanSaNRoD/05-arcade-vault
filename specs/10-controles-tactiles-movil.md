@@ -1,6 +1,6 @@
 # SPEC 10 — Controles táctiles para jugar en móvil
 
-> **Status:** Borrador
+> **Status:** Aprobado
 > **Depends on:** SPEC 05, SPEC 07, SPEC 08, SPEC 09
 > **Date:** 2026-10-12
 > **Objective:** Añadir botones virtuales táctiles bajo el CRT, visibles solo en dispositivos de puntero grueso, que despachan eventos de teclado sintéticos para que Asteroids, Tetris, Arkanoid y Snake sean jugables en un móvil en vertical.
