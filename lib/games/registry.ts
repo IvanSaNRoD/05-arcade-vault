@@ -1,6 +1,7 @@
 import type { ForwardRefExoticComponent, RefAttributes } from "react";
 import { AsteroidsGame } from "@/components/games/asteroids-game";
 import { ArkanoidGame } from "@/components/games/arkanoid-game";
+import { FroggerGame } from "@/components/games/frogger-game";
 import { SnakeGame } from "@/components/games/snake-game";
 import { TetrisGame } from "@/components/games/tetris-game";
 import type { SkinId } from "@/lib/games/skins";
@@ -96,5 +97,9 @@ export const GAME_ENGINES: Record<string, GameEngineEntry> = {
       a: null,
       b: null,
     },
+  },
+  // tiene vidas → corazones; sin touchControls (móvil fuera de alcance de su spec)
+  frogger: {
+    component: FroggerGame,
   },
 };

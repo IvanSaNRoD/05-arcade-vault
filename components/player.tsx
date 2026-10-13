@@ -26,6 +26,19 @@ import type { Game } from "@/lib/games";
 import { saveScore } from "@/lib/scores-client";
 import { TouchControls } from "@/components/touch-controls";
 
+const PLAYER_NAME_KEY = "av_player_name";
+
+function readStoredName(): string | null {
+  try {
+    return window.localStorage.getItem(PLAYER_NAME_KEY);
+  } catch {
+    return null; // localStorage bloqueado
+  }
+}
+
+// El nombre solo cambia al guardar, y entonces ya está en el estado local.
+const subscribeNothing = () => () => {};
+
 function SkinSelector({
   skin,
   onChange,
@@ -61,7 +74,7 @@ export function Player({ game }: { game: Game }) {
   const [level, setLevel] = useState(1);
   const [paused, setPaused] = useState(false);
   const [over, setOver] = useState(false);
-  const [name, setName] = useState("INVITADO");
+  const [typedName, setName] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(false);
@@ -73,6 +86,15 @@ export function Player({ game }: { game: Game }) {
     () => DEFAULT_SKIN,
   );
   const [skinsAvailable, setSkinsAvailable] = useState(false);
+
+  // Nombre de la última partida guardada; el servidor renderiza "INVITADO" y el
+  // cliente lo sustituye al hidratar. Lo que teclee el jugador tiene prioridad.
+  const storedName = useSyncExternalStore(
+    subscribeNothing,
+    readStoredName,
+    () => null,
+  );
+  const name = typedName ?? storedName ?? "INVITADO";
 
   // Simulated gameplay (juegos sin motor real): corre solo en el cliente, así el
   // render del servidor (score 0) siempre coincide. El nivel sube en el mismo tick
@@ -128,6 +150,11 @@ export function Player({ game }: { game: Game }) {
     try {
       await saveScore(game.id, name, score);
       setSaved(true);
+      try {
+        window.localStorage.setItem(PLAYER_NAME_KEY, name);
+      } catch {
+        // localStorage bloqueado: el nombre no se recuerda
+      }
     } catch {
       setSaveError(true);
     } finally {
