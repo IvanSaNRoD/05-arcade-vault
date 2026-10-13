@@ -409,9 +409,15 @@ export class FroggerEngine {
     this.resetFrog(); // rana al inicio + temporizador con la duración del nuevo nivel
   }
 
-  /** Paso 7: gestión completa de la muerte. De momento solo reinicia la rana. */
+  /** Resta una vida; sin vidas → gameover (el loop deja de llamar a update). */
   private killFrog() {
-    this.resetFrog();
+    this.lives--;
+    if (this.lives <= 0) {
+      this.lives = 0;
+      this.state = "gameover"; // emitState() envía lives = 0 y phase "gameover" a la vez
+      return;
+    }
+    this.resetFrog(); // rana al inicio + temporizador lleno
   }
 
   // ── Dibujo ──────────────────────────────────────────────────────────────────
