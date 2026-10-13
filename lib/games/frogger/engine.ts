@@ -22,6 +22,8 @@ const BASE_ROUND_MS = 15000;
 const ROUND_MS_STEP = 1000; // −1 s por nivel…
 const MIN_ROUND_MS = 8000; // …hasta un mínimo de 8 s
 const PTS_ROW = 10;
+const PTS_GOAL = 50;
+const PTS_TIME_PER_S = 10; // bonus por segundo restante al ocupar una boca
 // Bocas destino: 5 bocas de 2 columnas, separadas por 1 columna de seto
 const GOAL_COLS = [1, 4, 7, 10, 13];
 const GOAL_WIDTH = 2;
@@ -136,6 +138,45 @@ function buildLanes(level: number): Lane[] {
 
 function roundMs(level: number) {
   return Math.max(MIN_ROUND_MS, BASE_ROUND_MS - (level - 1) * ROUND_MS_STEP);
+}
+
+// ── Colisiones y soporte ──────────────────────────────────────────────────────
+// La rana ocupa la celda donde está su centro (su col puede ser fraccionaria al ir sobre un tronco).
+function covers(e: Entity, frog: Frog) {
+  const c = frog.col + 0.5;
+  return c >= e.col && c < e.col + e.width;
+}
+
+function isRiverRow(row: number) {
+  return row >= ROW_RIVER_TOP && row <= ROW_RIVER_BOT;
+}
+
+function isRoadRow(row: number) {
+  return row >= ROW_ROAD_TOP && row <= ROW_ROAD_BOT;
+}
+
+function checkRoadCollision(frog: Frog, lanes: Lane[]): boolean {
+  return lanes.some(
+    (lane) =>
+      isRoadRow(lane.row) && lane.row === frog.row && lane.entities.some((e) => covers(e, frog)),
+  );
+}
+
+/** Tronco o tortuga visible bajo la rana; null si está en el agua (o la tortuga se sumergió). */
+function getSupport(frog: Frog, lanes: Lane[]): { lane: Lane; entity: Entity } | null {
+  const lane = lanes.find((l) => isRiverRow(l.row) && l.row === frog.row);
+  const entity = lane?.entities.find((e) => covers(e, frog));
+  if (!lane || !entity || entity.submerged) return null;
+  return { lane, entity };
+}
+
+/** Índice de la boca libre bajo la rana; null si es seto o una boca ya ocupada (muerte). */
+function checkGoal(frog: Frog, goals: boolean[]): number | null {
+  if (frog.row !== ROW_GOALS) return null;
+  const c = frog.col + 0.5;
+  const i = GOAL_COLS.findIndex((gc) => c >= gc && c < gc + GOAL_WIDTH);
+  if (i === -1 || goals[i]) return null;
+  return i;
 }
 
 // ── FroggerEngine ─────────────────────────────────────────────────────────────
@@ -313,22 +354,54 @@ export class FroggerEngine {
         frog.col = frog.targetCol;
         frog.row = frog.targetRow;
         frog.animating = false;
-        this.land();
+        if (!this.land()) return;
       }
     }
-    // El paso 5 completa: arrastre del tronco/tortuga en el río y colisión con vehículos.
+
+    if (!frog.animating) {
+      // Carretera: un vehículo alcanza a la rana
+      if (checkRoadCollision(frog, this.lanes)) return this.killFrog();
+      // Río: sin apoyo se ahoga; con apoyo, el tronco/tortuga la arrastra
+      if (isRiverRow(frog.row)) {
+        const support = getSupport(frog, this.lanes);
+        if (!support) return this.killFrog();
+        frog.col += ((support.lane.speed / CELL) * support.lane.dir * dt) / 16;
+        frog.targetCol = frog.col;
+        // Arrastrada fuera del tablero por un borde lateral
+        if (frog.col + 0.5 < 0 || frog.col + 0.5 > COLS) return this.killFrog();
+      }
+    }
 
     this.timeLeft -= dt;
     if (this.timeLeft <= 0) this.killFrog();
   }
 
-  /** Lógica de la celda destino tras completar un salto. */
-  private land() {
+  /**
+   * Lógica de la celda destino tras completar un salto: puntos por avance y bocas destino.
+   * Devuelve false si la rana murió o se reinició (el resto del frame no aplica).
+   */
+  private land(): boolean {
     if (this.frog.row < this.bestRow) {
       this.score += PTS_ROW * (this.bestRow - this.frog.row);
       this.bestRow = this.frog.row;
     }
-    // El paso 5 completa: muerte (agua, vehículo) y bocas destino.
+    if (this.frog.row !== ROW_GOALS) return true;
+
+    const goal = checkGoal(this.frog, this.goals);
+    if (goal === null) {
+      this.killFrog();
+      return false;
+    }
+    this.goals[goal] = true;
+    this.score += PTS_GOAL + Math.floor(this.timeLeft / 1000) * PTS_TIME_PER_S;
+    if (this.goals.every(Boolean)) this.completeRound();
+    else this.resetFrog();
+    return false;
+  }
+
+  /** Paso 6: ronda completada. De momento solo reinicia la rana. */
+  private completeRound() {
+    this.resetFrog();
   }
 
   /** Paso 7: gestión completa de la muerte. De momento solo reinicia la rana. */
