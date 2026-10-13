@@ -23,6 +23,7 @@ const ROUND_MS_STEP = 1000; // −1 s por nivel…
 const MIN_ROUND_MS = 8000; // …hasta un mínimo de 8 s
 const PTS_ROW = 10;
 const PTS_GOAL = 50;
+const PTS_ROUND = 200;
 const PTS_TIME_PER_S = 10; // bonus por segundo restante al ocupar una boca
 // Bocas destino: 5 bocas de 2 columnas, separadas por 1 columna de seto
 const GOAL_COLS = [1, 4, 7, 10, 13];
@@ -399,9 +400,13 @@ export class FroggerEngine {
     return false;
   }
 
-  /** Paso 6: ronda completada. De momento solo reinicia la rana. */
+  /** Las 5 bocas llenas: bonus, siguiente nivel (más rápido, menos tiempo) y bocas vacías. */
   private completeRound() {
-    this.resetFrog();
+    this.score += PTS_ROUND;
+    this.level++; // emitState() lo notifica al HUD React en este mismo frame
+    this.goals = GOAL_COLS.map(() => false);
+    this.lanes = buildLanes(this.level);
+    this.resetFrog(); // rana al inicio + temporizador con la duración del nuevo nivel
   }
 
   /** Paso 7: gestión completa de la muerte. De momento solo reinicia la rana. */
