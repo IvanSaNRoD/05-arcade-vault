@@ -14,6 +14,35 @@ const ROW_ROAD_TOP = 8;
 const ROW_ROAD_BOT = 12;
 const ROW_START = 13;
 
+const START_COL = COLS / 2 - 1; // columna central (16 columnas → 7)
+const JUMP_MS = 120;
+const MAX_DT_MS = 50; // evita saltos enormes tras cambiar de pestaña
+const INITIAL_LIVES = 3;
+const BASE_ROUND_MS = 15000;
+const ROUND_MS_STEP = 1000; // −1 s por nivel…
+const MIN_ROUND_MS = 8000; // …hasta un mínimo de 8 s
+const PTS_ROW = 10;
+// Bocas destino: 5 bocas de 2 columnas, separadas por 1 columna de seto
+const GOAL_COLS = [1, 4, 7, 10, 13];
+const GOAL_WIDTH = 2;
+
+const KEY_DIRS: Record<string, Direction> = {
+  ArrowUp: "up",
+  ArrowDown: "down",
+  ArrowLeft: "left",
+  ArrowRight: "right",
+};
+const DIR_DELTA: Record<Direction, { dc: number; dr: number }> = {
+  up: { dc: 0, dr: -1 },
+  down: { dc: 0, dr: 1 },
+  left: { dc: -1, dr: 0 },
+  right: { dc: 1, dr: 0 },
+};
+// Teclas que el navegador desplazaría por defecto y que el juego consume.
+const SCROLL_KEYS = new Set(["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Space"]);
+
+const CAR_COLORS: Record<number, string> = { 9: "#ffd23f", 10: "#3fa9ff", 12: "#ff4d5e" };
+
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 // "dead" no se usa en Frogger; se mantiene por contrato con player.tsx
 export type FroggerPhase = "playing" | "dead" | "gameover" | "paused";
