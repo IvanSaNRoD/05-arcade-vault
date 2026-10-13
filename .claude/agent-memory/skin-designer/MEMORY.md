@@ -4,3 +4,5 @@
 | ---------- | --------- | ------- | ----- | ----- | ---------------------------------- | --------------------------- | -------- |
 | 2026-10-09 | tetris    | falta   | falta | falta | falla (fantasma clasico 1.31–1.67) | specs/skins/tetris-skins    | generado |
 | 2026-10-09 | asteroids | falta   | falta | falta | ok                                 | specs/skins/asteroids-skins | generado |
+| 2026-10-14 | tetris    | ok      | ok    | ok    | sin re-auditar                     | specs/skins/tetris-skins    | implementado |
+| 2026-10-14 | asteroids | ok      | ok    | ok    | sin re-auditar                     | specs/skins/asteroids-skins | implementado |
