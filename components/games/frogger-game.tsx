@@ -6,7 +6,6 @@ import {
   useEffect,
   useImperativeHandle,
   useRef,
-  useState,
 } from "react";
 import {
   CANVAS_H,
@@ -35,22 +34,16 @@ export const FroggerGame = memo(
   ) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const engineRef = useRef<FroggerEngine | null>(null);
-    const [state, setState] = useState<FroggerState | null>(null);
     const onStateChangeRef = useRef(onStateChange);
 
     useEffect(() => {
       onStateChangeRef.current = onStateChange;
     }, [onStateChange]);
 
-    // Reenvía al padre el último estado recibido del motor.
-    useEffect(() => {
-      if (state) onStateChangeRef.current(state);
-    }, [state]);
-
     useEffect(() => {
       const canvas = canvasRef.current;
       if (!canvas) return;
-      const engine = new FroggerEngine(canvas, setState);
+      const engine = new FroggerEngine(canvas, (s) => onStateChangeRef.current(s));
       engineRef.current = engine;
       engine.start();
       return () => {

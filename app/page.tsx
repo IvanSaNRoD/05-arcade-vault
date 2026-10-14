@@ -13,6 +13,8 @@ import { FeatureIcon } from "@/components/feature-icon";
 import { MiniCard } from "@/components/mini-card";
 import { Reveal } from "@/components/reveal";
 
+export const revalidate = 60;
+
 export default async function Home() {
   const games = await getGames();
 

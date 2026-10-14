@@ -44,6 +44,8 @@ const DIR_DELTA: Record<Direction, { dc: number; dr: number }> = {
 // Teclas que el navegador desplazaría por defecto y que el juego consume.
 const SCROLL_KEYS = new Set(["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Space"]);
 
+const TAU = Math.PI * 2;
+
 const CAR_COLORS: Record<number, string> = { 9: "#ffd23f", 10: "#3fa9ff", 12: "#ff4d5e" };
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
@@ -156,19 +158,28 @@ function isRoadRow(row: number) {
   return row >= ROW_ROAD_TOP && row <= ROW_ROAD_BOT;
 }
 
-function checkRoadCollision(frog: Frog, lanes: Lane[]): boolean {
-  return lanes.some(
-    (lane) =>
-      isRoadRow(lane.row) && lane.row === frog.row && lane.entities.some((e) => covers(e, frog)),
-  );
+/** Índice de carriles por fila (longitud ROWS) para consultas O(1). */
+function indexLanesByRow(lanes: Lane[]): (Lane | undefined)[] {
+  const out: (Lane | undefined)[] = new Array(ROWS).fill(undefined);
+  for (const l of lanes) out[l.row] = l;
+  return out;
+}
+
+function checkRoadCollision(frog: Frog, lane: Lane | undefined): boolean {
+  if (!lane || !isRoadRow(frog.row)) return false;
+  for (const e of lane.entities) {
+    if (covers(e, frog)) return true;
+  }
+  return false;
 }
 
 /** Tronco o tortuga visible bajo la rana; null si está en el agua (o la tortuga se sumergió). */
-function getSupport(frog: Frog, lanes: Lane[]): { lane: Lane; entity: Entity } | null {
-  const lane = lanes.find((l) => isRiverRow(l.row) && l.row === frog.row);
-  const entity = lane?.entities.find((e) => covers(e, frog));
-  if (!lane || !entity || entity.submerged) return null;
-  return { lane, entity };
+function getSupport(frog: Frog, lane: Lane | undefined): { lane: Lane; entity: Entity } | null {
+  if (!lane || !isRiverRow(frog.row)) return null;
+  for (const entity of lane.entities) {
+    if (covers(entity, frog)) return entity.submerged ? null : { lane, entity };
+  }
+  return null;
 }
 
 /** Índice de la boca libre bajo la rana; null si es seto o una boca ya ocupada (muerte). */
@@ -187,6 +198,7 @@ export class FroggerEngine {
   private onStateChange: (state: FroggerState) => void;
 
   private lanes: Lane[] = [];
+  private laneByRow: (Lane | undefined)[] = [];
   private frog: Frog = this.newFrog();
   private pendingDir: Direction | null = null;
   private goals: boolean[] = [];
@@ -201,6 +213,10 @@ export class FroggerEngine {
   private paused = false;
   private pauseDrawn = false; // ya se dibujó el frame congelado de esta pausa
   private lastEmitted: FroggerState | null = null;
+  private hudScoreVal = -1; // score con el que se generó hudScoreText
+  private hudScoreText = "";
+  private hudLevelVal = -1; // level con el que se generó hudLevelText
+  private hudLevelText = "";
 
   private lastTime: number | null = null;
   private rafId: number | null = null;
@@ -255,15 +271,15 @@ export class FroggerEngine {
     const loop = (ts: number) => {
       const dt = this.lastTime === null ? 0 : Math.min(ts - this.lastTime, MAX_DT_MS);
       this.lastTime = ts;
-      if (this.paused) {
-        // Un único frame al entrar en pausa: el canvas queda congelado bajo el overlay.
+      if (this.paused || this.state === "gameover") {
+        // Un único frame al entrar en pausa/game over: el canvas queda congelado bajo el overlay.
         if (!this.pauseDrawn) {
           this.draw();
           this.pauseDrawn = true;
         }
       } else {
         this.pauseDrawn = false;
-        if (this.state === "playing") this.update(dt);
+        this.update(dt);
         this.draw();
       }
       this.emitState();
@@ -310,6 +326,7 @@ export class FroggerEngine {
     this.lives = INITIAL_LIVES;
     this.level = 1;
     this.lanes = buildLanes(this.level);
+    this.laneByRow = indexLanesByRow(this.lanes);
     this.goals = GOAL_COLS.map(() => false);
     this.clock = 0;
     this.state = "playing";
@@ -381,10 +398,10 @@ export class FroggerEngine {
 
     if (!frog.animating) {
       // Carretera: un vehículo alcanza a la rana
-      if (checkRoadCollision(frog, this.lanes)) return this.killFrog();
+      if (checkRoadCollision(frog, this.laneByRow[frog.row])) return this.killFrog();
       // Río: sin apoyo se ahoga; con apoyo, el tronco/tortuga la arrastra
       if (isRiverRow(frog.row)) {
-        const support = getSupport(frog, this.lanes);
+        const support = getSupport(frog, this.laneByRow[frog.row]);
         if (!support) return this.killFrog();
         frog.col += ((support.lane.speed / CELL) * support.lane.dir * dt) / 16;
         frog.targetCol = frog.col;
@@ -426,6 +443,7 @@ export class FroggerEngine {
     this.level++; // emitState() lo notifica al HUD React en este mismo frame
     this.goals = GOAL_COLS.map(() => false);
     this.lanes = buildLanes(this.level);
+    this.laneByRow = indexLanesByRow(this.lanes);
     this.resetFrog(); // rana al inicio + temporizador con la duración del nuevo nivel
   }
 
@@ -470,7 +488,8 @@ export class FroggerEngine {
 
   private drawGoals() {
     const ctx = this.ctx;
-    GOAL_COLS.forEach((col, i) => {
+    for (let i = 0; i < GOAL_COLS.length; i++) {
+      const col = GOAL_COLS[i];
       const x = col * CELL;
       const y = ROW_GOALS * CELL + 22; // la franja superior la ocupa el HUD
       const w = GOAL_WIDTH * CELL;
@@ -481,7 +500,7 @@ export class FroggerEngine {
       ctx.lineWidth = 2;
       ctx.strokeRect(x + 1, y + 1, w - 2, h - 2);
       if (this.goals[i]) this.drawFrogShape(x + w / 2, y + h / 2, 0.55, false);
-    });
+    }
   }
 
   private drawEntity(e: Entity, lane: Lane) {
@@ -497,16 +516,20 @@ export class FroggerEngine {
       const wx = lane.dir > 0 ? x + w - 14 : x + 8;
       ctx.fillRect(wx, y + 13, 6, CELL - 26);
       ctx.fillStyle = "#111";
-      for (const [cx, cy] of [
-        [x + 10, y + 9],
-        [x + w - 10, y + 9],
-        [x + 10, y + CELL - 9],
-        [x + w - 10, y + CELL - 9],
-      ]) {
-        ctx.beginPath();
-        ctx.arc(cx, cy, 4, 0, Math.PI * 2);
-        ctx.fill();
-      }
+      const lx = x + 10,
+        rx = x + w - 10,
+        ty = y + 9,
+        by = y + CELL - 9;
+      ctx.beginPath();
+      ctx.moveTo(lx + 4, ty);
+      ctx.arc(lx, ty, 4, 0, TAU);
+      ctx.moveTo(rx + 4, ty);
+      ctx.arc(rx, ty, 4, 0, TAU);
+      ctx.moveTo(lx + 4, by);
+      ctx.arc(lx, by, 4, 0, TAU);
+      ctx.moveTo(rx + 4, by);
+      ctx.arc(rx, by, 4, 0, TAU);
+      ctx.fill();
     } else if (e.type === "truck") {
       ctx.fillStyle = "#9aa0a6"; // remolque
       ctx.fillRect(x + 2, y + 7, w - 4, CELL - 14);
@@ -573,7 +596,7 @@ export class FroggerEngine {
     ctx.lineCap = "round";
     const reach = jumping ? 18 : 13;
     ctx.beginPath();
-    for (const sx of [-1, 1]) {
+    for (let sx = -1; sx <= 1; sx += 2) {
       ctx.moveTo(sx * 8, -6);
       ctx.lineTo(sx * reach, -reach + 2);
       ctx.moveTo(sx * 8, 7);
@@ -586,7 +609,7 @@ export class FroggerEngine {
     ctx.ellipse(0, 0, 14, 12, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    for (const sx of [-1, 1]) {
+    for (let sx = -1; sx <= 1; sx += 2) {
       ctx.fillStyle = "#ffffff";
       ctx.beginPath();
       ctx.arc(sx * 6, -8, 4, 0, Math.PI * 2);
@@ -602,6 +625,14 @@ export class FroggerEngine {
   /** HUD interno en la franja superior de la fila 0: score, nivel, vidas y barra de tiempo. */
   private drawHud() {
     const ctx = this.ctx;
+    if (this.score !== this.hudScoreVal) {
+      this.hudScoreVal = this.score;
+      this.hudScoreText = String(this.score).padStart(5, "0");
+    }
+    if (this.level !== this.hudLevelVal) {
+      this.hudLevelVal = this.level;
+      this.hudLevelText = `NIVEL ${this.level}`;
+    }
     ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
     ctx.fillRect(0, 0, CANVAS_W, 22);
 
@@ -609,9 +640,9 @@ export class FroggerEngine {
     ctx.textBaseline = "top";
     ctx.fillStyle = "#ffffff";
     ctx.textAlign = "left";
-    ctx.fillText(String(this.score).padStart(5, "0"), 8, 1);
+    ctx.fillText(this.hudScoreText, 8, 1);
     ctx.textAlign = "center";
-    ctx.fillText(`NIVEL ${this.level}`, CANVAS_W / 2, 1);
+    ctx.fillText(this.hudLevelText, CANVAS_W / 2, 1);
 
     ctx.fillStyle = "#39ff14";
     for (let i = 0; i < this.lives; i++) {
