@@ -17,6 +17,13 @@ interface GameRow {
   plays_seed: string;
 }
 
+// Fila de la vista game_stats (SPEC 14): MAX/COUNT de scores por game_id.
+interface GameStatsRow {
+  game_id: string;
+  best: number;
+  plays: number;
+}
+
 interface LiveStats {
   best: number;
   plays: number;
@@ -41,20 +48,16 @@ function toGame(row: GameRow, stats?: LiveStats): Game {
 
 export async function getGames(): Promise<Game[]> {
   const supabase = createClient();
-  const [{ data: rows, error }, { data: scores }] = await Promise.all([
+  const [{ data: rows, error }, { data: stats }] = await Promise.all([
     supabase.from("games").select("*"),
-    supabase.from("scores").select("game_id, score"),
+    supabase.from("game_stats").select("game_id, best, plays"),
   ]);
 
   if (error) return FALLBACK_GAMES;
 
-  const statsByGame = new Map<string, LiveStats>();
-  for (const s of scores ?? []) {
-    const current = statsByGame.get(s.game_id) ?? { best: 0, plays: 0 };
-    current.plays += 1;
-    current.best = Math.max(current.best, s.score);
-    statsByGame.set(s.game_id, current);
-  }
+  const statsByGame = new Map<string, LiveStats>(
+    ((stats ?? []) as GameStatsRow[]).map((s) => [s.game_id, { best: s.best, plays: s.plays }]),
+  );
 
   return (rows ?? []).map((row) => toGame(row, statsByGame.get(row.id)));
 }
