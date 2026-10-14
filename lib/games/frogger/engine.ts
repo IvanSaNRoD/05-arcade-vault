@@ -196,7 +196,7 @@ export class FroggerEngine {
   private lives = INITIAL_LIVES;
   private level = 1;
   private timeLeft = BASE_ROUND_MS; // ms
-  private clock = 0; // ms de juego transcurridos (ciclo de las tortugas)
+  private clock = 0; // ms dentro del ciclo de las tortugas, en [0, TURTLE_CYCLE_MS)
   private state: "playing" | "gameover" = "playing";
   private paused = false;
   private pauseDrawn = false; // ya se dibujó el frame congelado de esta pausa
@@ -329,7 +329,8 @@ export class FroggerEngine {
   }
 
   private update(dt: number) {
-    this.clock += dt;
+    // Acotado al ciclo: solo se usa para la fase de las tortugas y así no crece sin límite.
+    this.clock = (this.clock + dt) % TURTLE_CYCLE_MS;
 
     // Entidades: avance horizontal en bucle y ciclo de inmersión de las tortugas
     for (const lane of this.lanes) {
