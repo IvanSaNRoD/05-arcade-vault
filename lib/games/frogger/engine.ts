@@ -199,6 +199,7 @@ export class FroggerEngine {
   private clock = 0; // ms de juego transcurridos (ciclo de las tortugas)
   private state: "playing" | "gameover" = "playing";
   private paused = false;
+  private pauseDrawn = false; // ya se dibujó el frame congelado de esta pausa
 
   private lastTime: number | null = null;
   private rafId: number | null = null;
@@ -245,8 +246,17 @@ export class FroggerEngine {
     const loop = (ts: number) => {
       const dt = this.lastTime === null ? 0 : Math.min(ts - this.lastTime, MAX_DT_MS);
       this.lastTime = ts;
-      if (!this.paused && this.state === "playing") this.update(dt);
-      this.draw();
+      if (this.paused) {
+        // Un único frame al entrar en pausa: el canvas queda congelado bajo el overlay.
+        if (!this.pauseDrawn) {
+          this.draw();
+          this.pauseDrawn = true;
+        }
+      } else {
+        this.pauseDrawn = false;
+        if (this.state === "playing") this.update(dt);
+        this.draw();
+      }
       this.emitState();
       this.rafId = requestAnimationFrame(loop);
     };
