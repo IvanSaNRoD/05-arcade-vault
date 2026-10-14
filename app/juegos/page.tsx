@@ -1,6 +1,8 @@
 import { Library } from "@/components/library";
 import { getGames } from "@/lib/games";
 
+export const revalidate = 60;
+
 export default async function Games() {
   const games = await getGames();
 
