@@ -1,7 +1,7 @@
 # SPEC SKINS frogger — Skins clásica, neón y retro para Frogger
 
 > **Status:** Borrador
-> **Depends on:** `specs/game-jam/frogger/frogger-core.md`, `specs/skins/tetris-skins.md` (implementada)
+> **Depends on:** `specs/12-frogger-core.md`, `specs/13-frogger-performance.md`, `specs/skins/tetris-skins.md` (implementada)
 > **Date:** 2026-10-14
 > **Objective:** Añadir a Frogger las skins `clasico` / `neon` / `retro` mediante `lib/games/frogger/skins.ts` y `setSkin()` en `FroggerEngine`, reutilizando el sistema de skins y el selector que ya existen para Tetris y Asteroids.
 
@@ -70,8 +70,9 @@ export const FROGGER_SKINS: Record<SkinId, FroggerPalette>;
 // lib/games/frogger/engine.ts — API nueva / cambiada
 class FroggerEngine {
   private palette: FroggerPalette = FROGGER_SKINS[DEFAULT_SKIN];
-  setSkin(id: SkinId): void; // solo cambia this.palette; no toca carriles, rana, score ni estado
+  setSkin(id: SkinId): void; // this.palette = FROGGER_SKINS[id]; this.pauseDrawn = false; no toca carriles, rana, score ni estado
 }
+// pauseDrawn (SPEC 13) ya existe: en pausa el loop dibuja un único frame; ponerlo a false fuerza un redibujado con la skin nueva
 // CAR_COLORS se elimina: ctx.fillStyle = p.cars[lane.row] ?? p.carDefault
 ```
 
@@ -175,15 +176,15 @@ Convenciones:
 - Estilo ramificado por `p.id` (`"clasico" | "neon" | "retro"`), igual que `TetrisEngine`.
 - Todo `shadowBlur` > 0 va dentro de `ctx.save()/ctx.restore()`; `drawFrogShape` ya usa `save/restore`.
 - Las vidas del HUD usan `p.frog` (hoy comparten `#39ff14` con la rana).
-- El loop de `FroggerEngine.start()` llama `draw()` en cada frame también en pausa y en game over: `setSkin` se ve al instante sin tocar `update()`.
+- El loop de `FroggerEngine.start()` llama `draw()` en cada frame jugando y en game over, pero en pausa solo un frame (flag `pauseDrawn`, SPEC 13). `setSkin` pone `this.pauseDrawn = false` para que el loop redibuje una vez con la skin nueva; no toca `update()` ni `emitState()` (la skin no forma parte de `FroggerState`).
 
 ## Plan de implementación
 
 1. Crear `lib/games/frogger/skins.ts` con `FroggerPalette` y `FROGGER_SKINS` copiando la tabla de paleta. Verificar: `npx tsc --noEmit` sin errores nuevos.
-2. `lib/games/frogger/engine.ts` (parte 1, `clasico`): importar `DEFAULT_SKIN`, `SkinId` y `FROGGER_SKINS`; añadir `private palette = FROGGER_SKINS[DEFAULT_SKIN]` y `setSkin(id) { this.palette = FROGGER_SKINS[id]; }`; eliminar `CAR_COLORS`; sustituir cada literal de `draw()`, `drawGoals()`, `drawEntity()`, `drawFrogShape()` y `drawHud()` por su rol (`p.cars[lane.row] ?? p.carDefault`, `p.river`, `p.timerHigh`…). Solo estilo `clasico`. Verificar: `npx tsc --noEmit` sin errores y `/juegos/frogger/jugar` se ve igual que antes.
+2. `lib/games/frogger/engine.ts` (parte 1, `clasico`): importar `DEFAULT_SKIN`, `SkinId` y `FROGGER_SKINS`; añadir `private palette = FROGGER_SKINS[DEFAULT_SKIN]` y `setSkin(id) { this.palette = FROGGER_SKINS[id]; this.pauseDrawn = false; }`; eliminar `CAR_COLORS`; sustituir cada literal de `draw()`, `drawGoals()`, `drawEntity()`, `drawFrogShape()` y `drawHud()` por su rol (`p.cars[lane.row] ?? p.carDefault`, `p.river`, `p.timerHigh`…). Solo estilo `clasico`. Verificar: `npx tsc --noEmit` sin errores, `/juegos/frogger/jugar` se ve igual que antes y en pausa el canvas sigue congelado (un solo `draw()`, comportamiento de SPEC 13).
 3. `engine.ts` (parte 2, `neon`): si `p.id === "neon"`, coches, camiones, troncos y tortugas visibles con `strokeRect`/`stroke` 2 px y `shadowBlur = p.glow` + `shadowColor` del rol dentro de `save()/restore()`; rana con cuerpo `stroke` 3 px y glow; borde de boca con glow. Verificar: `npx tsc --noEmit` sin errores.
 4. `engine.ts` (parte 3, `retro`): si `p.id === "retro"`, `x` de entidades con `Math.round`, ruedas y vidas como `fillRect` cuadrados, centro de tortugas y rana redondeado, rana con `stroke` 2 px `frogOutline` tras el relleno y `lineCap = "butt"`, barra de tiempo con ancho redondeado. Verificar: `npx tsc --noEmit` sin errores.
-5. `components/games/frogger-game.tsx`: importar `readStoredSkin` y `SkinId` de `@/lib/games/skins`; tras `new FroggerEngine(...)` llamar `engine.setSkin(readStoredSkin())` antes de `engine.start()`; añadir `setSkin?` a `FroggerGameHandle` y `setSkin: (id) => engineRef.current?.setSkin(id)` a `useImperativeHandle`. Verificar: `npx tsc --noEmit` y `npm run lint` sin errores nuevos; `/juegos/frogger/jugar` muestra el selector CLÁSICO / NEÓN / RETRO.
+5. `components/games/frogger-game.tsx` (componente `memo(forwardRef(...))` desde SPEC 13; se mantiene el `memo`): importar `readStoredSkin` y `SkinId` de `@/lib/games/skins`; tras `new FroggerEngine(...)` llamar `engine.setSkin(readStoredSkin())` antes de `engine.start()`; añadir `setSkin?` a `FroggerGameHandle` y `setSkin: (id) => engineRef.current?.setSkin(id)` a `useImperativeHandle`. Verificar: `npx tsc --noEmit` y `npm run lint` sin errores nuevos; `/juegos/frogger/jugar` muestra el selector CLÁSICO / NEÓN / RETRO.
 6. Gate: `npx tsc --noEmit`, `npm run lint` (salvo los errores preexistentes de `app/page.tsx`, BACKLOG #2) y `npm run build`. Verificar: los tres terminan sin errores nuevos.
 
 ## Criterios de aceptación
@@ -206,6 +207,7 @@ Convenciones:
 - **Sí:** reutilizar `lib/games/skins.ts`, `setSkin?` de `GameEngineHandle` y `SkinSelector` de `components/player.tsx` sin cambios. Patrón único para todos los juegos.
 - **Sí:** `palette` como campo de `FroggerEngine`. Todo el dibujo vive en métodos del motor (no hay clases de entidad como en Asteroids), así que basta `this.palette`.
 - **Sí:** `setSkin?` opcional en `FroggerGameHandle`, igual que `TetrisGameHandle` y `AsteroidsGameHandle`.
+- **Sí:** `setSkin` reinicia `pauseDrawn` en vez de llamar `draw()` directamente. Respeta el loop único de SPEC 13 (un frame congelado por pausa) y evita dibujar fuera del `requestAnimationFrame`. (decisión del agente, revisar)
 - **Sí:** `cars: Record<number, string>` + `carDefault`. Mantiene la indexación por fila actual y el fallback `?? "#ff4d5e"` sin literal. (decisión del agente, revisar)
 - **Sí:** medir contraste contra el fondo de la zona donde se dibuja cada rol (carretera, río, acera, seto, banda HUD). Frogger tiene fondo por zonas; medir solo contra `background` falsearía troncos y tortugas. (decisión del agente, revisar)
 - **Sí:** parabrisas, ruedas, vetas, escamas y ojos como detalle interior decorativo. El elemento se identifica por su silueta, que sí se mide. (decisión del agente, revisar)
@@ -223,16 +225,17 @@ Convenciones:
 
 ## Riesgos
 
-| Riesgo                                                                              | Mitigación                                                                                        |
-| ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `clasico` falla contraste: tronco `#7a4a1f` sobre río 2.45:1                        | No se cambia (cero cambio visual). Se reporta al usuario para decidir si va a `specs/BACKLOG.md`. |
-| `clasico` falla contraste: tortuga hundida ≈`#186653` sobre río 2.65:1              | Igual que arriba. `neon` y `retro` la dibujan a ≥ 3:1.                                            |
-| `clasico` rana `#39ff14` sobre tortuga `#2ecc71` 1.55:1 (solape)                    | Igual que arriba. `neon` usa tortugas en contorno y `retro` contorno negro en la rana.            |
-| `shadowBlur` sin resetear tiñe marcas, HUD o texto                                  | Todo dibujo con glow dentro de `save()/restore()`.                                                |
-| Glow en ~30 entidades por frame baja FPS                                            | `shadowBlur` 12 solo en siluetas; verificar 60 FPS en nivel 5+ en `npm run dev`.                  |
-| Troncos neon en contorno parecen huecos y confunden dónde se puede pisar            | Contorno amarillo con glow + vetas; verificar en `npm run dev` que se lee como plataforma.        |
-| Coches en contorno neon y entidades redondeadas en retro desplazan el dibujo ≤ 1 px | Aceptado; colisiones usan `covers()` sobre `col`, no el dibujo.                                   |
-| Ruedas `#111` de `clasico` casi invisibles sobre carretera negra (1.11:1)           | Detalle decorativo; no se cambia en `clasico`.                                                    |
+| Riesgo                                                                              | Mitigación                                                                                            |
+| ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `clasico` falla contraste: tronco `#7a4a1f` sobre río 2.45:1                        | No se cambia (cero cambio visual). Se reporta al usuario para decidir si va a `specs/BACKLOG.md`.     |
+| `clasico` falla contraste: tortuga hundida ≈`#186653` sobre río 2.65:1              | Igual que arriba. `neon` y `retro` la dibujan a ≥ 3:1.                                                |
+| `clasico` rana `#39ff14` sobre tortuga `#2ecc71` 1.55:1 (solape)                    | Igual que arriba. `neon` usa tortugas en contorno y `retro` contorno negro en la rana.                |
+| `shadowBlur` sin resetear tiñe marcas, HUD o texto                                  | Todo dibujo con glow dentro de `save()/restore()`.                                                    |
+| Glow en ~30 entidades por frame baja FPS                                            | `shadowBlur` 12 solo en siluetas; verificar 60 FPS en nivel 5+ en `npm run dev`.                      |
+| Troncos neon en contorno parecen huecos y confunden dónde se puede pisar            | Contorno amarillo con glow + vetas; verificar en `npm run dev` que se lee como plataforma.            |
+| Coches en contorno neon y entidades redondeadas en retro desplazan el dibujo ≤ 1 px | Aceptado; colisiones usan `covers()` sobre `col`, no el dibujo.                                       |
+| En pausa el loop no redibuja (SPEC 13): cambiar de skin no se vería hasta reanudar  | `setSkin` pone `pauseDrawn = false`; el loop dibuja un frame con la paleta nueva y vuelve a congelar. |
+| Ruedas `#111` de `clasico` casi invisibles sobre carretera negra (1.11:1)           | Detalle decorativo; no se cambia en `clasico`.                                                        |
 
 ## Lo que **no** está en esta spec
 

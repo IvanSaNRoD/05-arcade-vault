@@ -2,6 +2,7 @@
 
 import {
   forwardRef,
+  memo,
   useEffect,
   useImperativeHandle,
   useRef,
@@ -25,8 +26,13 @@ interface FroggerGameProps {
   onStateChange: (state: FroggerState) => void;
 }
 
-export const FroggerGame = forwardRef<FroggerGameHandle, FroggerGameProps>(
-  function FroggerGame({ onStateChange }, ref) {
+// memo: Player re-renderiza al cambiar el HUD; las props (onStateChange estable) no cambian,
+// así que el canvas no se re-renderiza.
+export const FroggerGame = memo(
+  forwardRef<FroggerGameHandle, FroggerGameProps>(function FroggerGame(
+    { onStateChange },
+    ref,
+  ) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const engineRef = useRef<FroggerEngine | null>(null);
     const [state, setState] = useState<FroggerState | null>(null);
@@ -78,5 +84,5 @@ export const FroggerGame = forwardRef<FroggerGameHandle, FroggerGameProps>(
         }}
       />
     );
-  },
+  }),
 );
