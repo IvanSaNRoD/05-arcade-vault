@@ -200,6 +200,7 @@ export class FroggerEngine {
   private state: "playing" | "gameover" = "playing";
   private paused = false;
   private pauseDrawn = false; // ya se dibujó el frame congelado de esta pausa
+  private lastEmitted: FroggerState | null = null;
 
   private lastTime: number | null = null;
   private rafId: number | null = null;
@@ -228,13 +229,21 @@ export class FroggerEngine {
     if (d) this.pendingDir = d;
   };
 
+  /** Notifica a React solo si algo cambió: evita un setState (y re-render) por frame. */
   private emitState() {
-    this.onStateChange({
-      score: this.score,
-      lives: this.lives,
-      level: this.level,
-      phase: this.paused ? "paused" : this.state,
-    });
+    const phase = this.paused ? "paused" : this.state;
+    const last = this.lastEmitted;
+    if (
+      last &&
+      last.score === this.score &&
+      last.lives === this.lives &&
+      last.level === this.level &&
+      last.phase === phase
+    ) {
+      return;
+    }
+    this.lastEmitted = { score: this.score, lives: this.lives, level: this.level, phase };
+    this.onStateChange(this.lastEmitted);
   }
 
   /** Arranca el loop de juego y registra el listener de teclado. Idempotente. */
