@@ -6,6 +6,8 @@ Problemas detectados fuera del alcance de la spec en la que aparecieron. Cada en
 
 ## 1. Agregar `best` y `plays` en Postgres
 
+**Resuelto en SPEC 14** (vista `game_stats`).
+
 **Prioridad:** alta.
 
 `getGames()` (`lib/games.ts:43-54`) hace `supabase.from("scores").select("game_id, score")` sin filtro: descarga **todas** las filas de `scores` y calcula `MAX`/`COUNT` en JS. `getGame()` (`lib/games.ts:61-69`) hace lo mismo filtrado por juego.
@@ -47,3 +49,15 @@ Ya registrado como riesgo en SPEC 05, SPEC 07 y SPEC 08 sin resolverse en ningun
 Es el patrón oficial de `@supabase/ssr` y el `matcher` ya excluye estáticos, así que puede que no haya nada que arreglar. Antes de escribir una spec hay que medir el coste real en producción, no en `next dev`, donde la compilación bajo demanda domina los tiempos.
 
 Detectado midiendo tiempos de carga tras SPEC 08.
+
+---
+
+## 5. `/salon` es dinámica y la ruta más lenta
+
+**Prioridad:** media.
+
+`npm run build` marca `/salon` como `ƒ` (dinámica): se renderiza en cada request. Con `next start` su TTFB es 0,6 s, frente a 0,01–0,03 s de `/juegos` y `/juegos/[id]` (ISR).
+
+Probable causa: lee `searchParams` (`?juego=`, `app/salon/page.tsx:12`), lo que fuerza render dinámico pese a `revalidate = 60`. Analizar si el selector de juego puede resolverse en cliente o con rutas `/salon/[id]` prerenderizadas.
+
+Detectado midiendo tiempos durante SPEC 14.
