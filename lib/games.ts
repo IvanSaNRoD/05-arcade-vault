@@ -64,16 +64,13 @@ export async function getGames(): Promise<Game[]> {
 
 export async function getGame(id: string): Promise<Game | undefined> {
   const supabase = createClient();
-  const [{ data: row, error }, { data: scores }] = await Promise.all([
+  const [{ data: row, error }, { data: stats }] = await Promise.all([
     supabase.from("games").select("*").eq("id", id).maybeSingle(),
-    supabase.from("scores").select("score").eq("game_id", id),
+    supabase.from("game_stats").select("best, plays").eq("game_id", id).maybeSingle(),
   ]);
 
   if (error) return FALLBACK_GAMES.find((g) => g.id === id);
   if (!row) return undefined;
 
-  const plays = scores?.length ?? 0;
-  const best = plays > 0 ? Math.max(...scores!.map((s) => s.score)) : 0;
-
-  return toGame(row, { best, plays });
+  return toGame(row, (stats as LiveStats | null) ?? undefined);
 }
