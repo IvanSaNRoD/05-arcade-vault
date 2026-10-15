@@ -61,3 +61,43 @@ Detectado midiendo tiempos de carga tras SPEC 08.
 Probable causa: lee `searchParams` (`?juego=`, `app/salon/page.tsx:12`), lo que fuerza render dinámico pese a `revalidate = 60`. Analizar si el selector de juego puede resolverse en cliente o con rutas `/salon/[id]` prerenderizadas.
 
 Detectado midiendo tiempos durante SPEC 14.
+
+---
+
+## 6. SMTP propio para los correos de Auth
+
+**Prioridad:** media (bloquea producción con usuarios reales).
+
+SPEC 15 usa el SMTP por defecto de Supabase: ~2 correos/hora, pensado solo para desarrollo. Confirmación de registro y recuperación de contraseña dependen de él. Configurar Resend como SMTP custom en Supabase (requiere dominio verificado; `onboarding@resend.dev` solo envía al correo de la cuenta).
+
+Detectado durante SPEC 15.
+
+---
+
+## 7. Ligar `scores` a `auth.users`
+
+**Prioridad:** media.
+
+Con SPEC 15 una partida con sesión guarda `name = username`, pero `scores` no tiene `user_id`: cualquiera puede escribir ese mismo nombre como invitado. Añadir `scores.user_id` (nullable para invitados) + RLS (`user_id = auth.uid()` al insertar) y decidir cómo se muestra en leaderboard/salón.
+
+Detectado durante SPEC 15.
+
+---
+
+## 8. Página de perfil
+
+**Prioridad:** baja.
+
+No hay forma de cambiar el username (autogenerado en OAuth), ni de borrar la cuenta. `profiles` no tiene policies de update/delete: hoy solo escribe el trigger `handle_new_user`.
+
+Detectado durante SPEC 15.
+
+---
+
+## 9. Volver a la página de origen tras login (`?next=`)
+
+**Prioridad:** baja.
+
+Tras iniciar sesión siempre se aterriza en `/juegos`. `/auth/callback` ya acepta `next` (solo rutas internas); faltaría propagarlo desde los enlaces a `/auth` y desde `signIn`/`signInWithProvider`.
+
+Detectado durante SPEC 15.
