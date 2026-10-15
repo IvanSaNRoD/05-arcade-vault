@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useActionState, useState } from "react";
 import {
+  requestPasswordReset,
+  updatePassword,
   signIn,
   signInWithProvider,
   signUp,
@@ -223,6 +225,84 @@ export function AuthForm({ linkError = false }: { linkError?: boolean }) {
       <div className="mt-4.5 text-center text-[11px] tracking-widest text-ink-faint">
         AL ENTRAR ACEPTAS LOS TÉRMINOS DEL SALÓN ARCADE
       </div>
+    </div>
+  );
+}
+
+export function RecoverForm() {
+  const [state, action, pending] = useActionState(requestPasswordReset, IDLE);
+
+  return (
+    <div className="auth-card">
+      <AuthHeader />
+      <h3 className="pixel mt-4.5 mb-3 text-center text-[11px] tracking-widest">
+        RECUPERAR CONTRASEÑA
+      </h3>
+
+      {state.status === "check-email" ? (
+        <CheckEmail email={state.email}>
+          Si hay una cuenta con ese correo, ábrelo en este navegador para elegir
+          una contraseña nueva.
+        </CheckEmail>
+      ) : (
+        <form action={action}>
+          <div className="field">
+            <label htmlFor="auth-email">Correo electrónico</label>
+            <input
+              id="auth-email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              placeholder="jugador@vault.gg"
+              required
+            />
+          </div>
+          <button
+            className="btn lg mt-2 w-full"
+            type="submit"
+            disabled={pending}
+          >
+            {pending ? "ENVIANDO…" : "ENVIAR ENLACE"}
+          </button>
+          {state.status === "error" && <AuthError message={state.error} />}
+        </form>
+      )}
+
+      <Link href="/auth" className="btn ghost mt-2.5 w-full">
+        VOLVER A INICIAR SESIÓN
+      </Link>
+    </div>
+  );
+}
+
+export function NewPasswordForm() {
+  const [state, action, pending] = useActionState(updatePassword, IDLE);
+
+  return (
+    <div className="auth-card">
+      <AuthHeader />
+      <h3 className="pixel mt-4.5 mb-3 text-center text-[11px] tracking-widest">
+        NUEVA CONTRASEÑA
+      </h3>
+
+      <form action={action}>
+        <div className="field">
+          <label htmlFor="auth-pass">Contraseña nueva</label>
+          <input
+            id="auth-pass"
+            name="password"
+            type="password"
+            autoComplete="new-password"
+            placeholder="Mínimo 8 caracteres"
+            minLength={8}
+            required
+          />
+        </div>
+        <button className="btn lg mt-2 w-full" type="submit" disabled={pending}>
+          {pending ? "GUARDANDO…" : "GUARDAR CONTRASEÑA"}
+        </button>
+        {state.status === "error" && <AuthError message={state.error} />}
+      </form>
     </div>
   );
 }
