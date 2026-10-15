@@ -94,9 +94,13 @@ $$;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
+
+-- Migración: revoke_handle_new_user_execute
+revoke execute on function public.handle_new_user() from public, anon, authenticated;
 ```
 
 - `left(..., 12)`: deja 4 caracteres para el sufijo numérico sin pasar de 16.
+- `revoke execute`: sin ello `get_advisors` avisa de que `anon`/`authenticated` pueden llamar la función `security definer` por `/rest/v1/rpc`. El trigger sigue disparando: Postgres no comprueba `EXECUTE` al disparar triggers.
 - `security definer` + `search_path = ''`: el trigger escribe en `public.profiles` saltando RLS; nombres totalmente cualificados.
 - Usuarios ya existentes en `auth.users` (si los hay) no tienen profile; ver Riesgos.
 
