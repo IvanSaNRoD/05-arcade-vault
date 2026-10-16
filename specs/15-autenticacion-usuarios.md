@@ -161,19 +161,19 @@ Errores de Supabase traducidos (por `error.code`): `invalid_credentials` → "Co
 ## Criterios de aceptación
 
 - [ ] `profiles` existe con RLS activa, `username` unique + check `^[a-z0-9_]{3,16}$`; `get_advisors` sin avisos de seguridad nuevos.
-- [ ] Registro email: crea fila en `auth.users` y en `profiles` con el username elegido; muestra "REVISA TU CORREO"; sin confirmar, el login devuelve "Confirma tu correo antes de entrar."
-- [ ] El enlace de confirmación inicia sesión y aterriza en `/juegos`.
-- [ ] Registro con username ya usado → "Ese usuario ya está en uso." sin crear cuenta.
-- [ ] Login con contraseña incorrecta → "Correo o contraseña incorrectos."
-- [ ] Login con GitHub y con Google crean sesión y un profile con username autogenerado válido (sufijo numérico si choca).
-- [ ] Recuperar contraseña: email recibido → `/auth/nueva-contrasena` → nueva contraseña funciona; la antigua no.
-- [ ] `/auth/nueva-contrasena` sin sesión redirige a `/auth`.
-- [ ] Con sesión, `/auth` redirige a `/juegos`.
-- [ ] Nav (desktop y móvil 375 px) muestra username + SALIR con sesión; SALIR cierra sesión, lleva a `/` y el nav vuelve a "Iniciar Sesión" sin recargar.
-- [ ] Logueado, guardar puntuación inserta `scores.name = username`; invitado sigue igual (nombre libre / "INVITADO").
-- [ ] `npm run build`: `/`, `/juegos` siguen con `Revalidate 1m` y `/juegos/[id]` como SSG/ISR (el layout no lee cookies).
-- [ ] `npx tsc --noEmit` sin errores; `npx eslint` sobre los archivos tocados sin errores nuevos.
-- [ ] `docs/verificacion/15-autenticacion.md` y entradas nuevas en `specs/BACKLOG.md` existen.
+- [x] Registro email: crea fila en `auth.users` y en `profiles` con el username elegido; muestra "REVISA TU CORREO"; sin confirmar, el login devuelve "Confirma tu correo antes de entrar."
+- [x] El enlace de confirmación inicia sesión y aterriza en `/juegos`.
+- [x] Registro con username ya usado → "Ese usuario ya está en uso." sin crear cuenta.
+- [x] Login con contraseña incorrecta → "Correo o contraseña incorrectos."
+- [x] Login con GitHub y con Google crean sesión y un profile con username autogenerado válido (sufijo numérico si choca).
+- [x] Recuperar contraseña: email recibido → `/auth/nueva-contrasena` → nueva contraseña funciona; la antigua no.
+- [x] `/auth/nueva-contrasena` sin sesión redirige a `/auth`.
+- [x] Con sesión, `/auth` redirige a `/juegos`.
+- [x] Nav (desktop y móvil 375 px) muestra username + SALIR con sesión; SALIR cierra sesión, lleva a `/` y el nav vuelve a "Iniciar Sesión" sin recargar.
+- [x] Logueado, guardar puntuación inserta `scores.name = username`; invitado sigue igual (nombre libre / "INVITADO").
+- [x] `npm run build`: `/`, `/juegos` siguen con `Revalidate 1m` y `/juegos/[id]` como SSG/ISR (el layout no lee cookies).
+- [x] `npx tsc --noEmit` sin errores; `npx eslint` sobre los archivos tocados sin errores nuevos.
+- [x] `docs/verificacion/15-autenticacion.md` y entradas nuevas en `specs/BACKLOG.md` existen.
 
 ---
 

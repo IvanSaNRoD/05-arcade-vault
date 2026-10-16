@@ -204,16 +204,16 @@ Cada paso deja el sistema funcional.
 
 ## Criterios de aceptación
 
-- [ ] La memoria del tab en Chrome DevTools no crece continuamente durante 2 minutos de juego con skin classic.
-- [ ] No se observan frame drops en los primeros 60 segundos de juego.
-- [ ] El canvas no se redibuja mientras el juego está en pausa (verificable añadiendo `console.count('draw')` temporalmente).
-- [ ] El HUD React muestra la puntuación correcta cuando la rana avanza filas.
-- [ ] El HUD React muestra las vidas correctas al morir.
-- [ ] El modal de game-over muestra la puntuación final correcta.
-- [ ] El skin-selector cambia el skin del canvas en tiempo real.
-- [ ] El botón PAUSA / REANUDAR funciona igual que antes.
-- [ ] JUGAR DE NUEVO reinicia score, vidas y nivel a 0 / 3 / 1 tanto en el canvas como en el HUD.
-- [ ] React DevTools Profiler muestra 0 re-renders de `FroggerPlay` durante gameplay normal (solo rana moviéndose, sin morir ni subir nivel).
+- [x] La memoria del tab en Chrome DevTools no crece continuamente durante 2 minutos de juego con skin classic.
+- [x] No se observan frame drops en los primeros 60 segundos de juego.
+- [x] El canvas no se redibuja mientras el juego está en pausa (verificable añadiendo `console.count('draw')` temporalmente).
+- [x] El HUD React muestra la puntuación correcta cuando la rana avanza filas.
+- [x] El HUD React muestra las vidas correctas al morir.
+- [x] El modal de game-over muestra la puntuación final correcta.
+- [x] El skin-selector cambia el skin del canvas en tiempo real.
+- [x] El botón PAUSA / REANUDAR funciona igual que antes.
+- [x] JUGAR DE NUEVO reinicia score, vidas y nivel a 0 / 3 / 1 tanto en el canvas como en el HUD.
+- [x] React DevTools Profiler muestra 0 re-renders de `FroggerPlay` durante gameplay normal (solo rana moviéndose, sin morir ni subir nivel).
 
 ---
 

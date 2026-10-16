@@ -90,15 +90,15 @@ interface GameStatsRow {
 
 ## Criterios de aceptación
 
-- [ ] `select * from game_stats` en Supabase devuelve `game_id`, `best`, `plays` con los mismos valores que el agregado manual sobre `scores`.
-- [ ] `lib/games.ts` no contiene `from("scores")`.
-- [ ] Salida de `npm run build`: `/` y `/juegos` con `Revalidate 1m`.
-- [ ] Con `next start`: insertar una partida nueva y, pasados ≥60 s y una recarga extra, `/juegos` muestra el `plays` incrementado.
-- [ ] Un juego sin partidas reales sigue mostrando `best_seed`/`plays_seed`.
-- [ ] DevTools/servidor: la respuesta de `game_stats` tiene como máximo 1 fila por juego.
-- [ ] `/juegos/[id]`, `/juegos/[id]/jugar` y `/salon` muestran los mismos récords que antes del cambio.
-- [ ] `npx tsc --noEmit` sin errores; `npx eslint lib/games.ts app/juegos/page.tsx` sin errores nuevos.
-- [ ] `specs/BACKLOG.md` tiene la entrada de `/salon`.
+- [x] `select * from game_stats` en Supabase devuelve `game_id`, `best`, `plays` con los mismos valores que el agregado manual sobre `scores`.
+- [x] `lib/games.ts` no contiene `from("scores")`.
+- [x] Salida de `npm run build`: `/` y `/juegos` con `Revalidate 1m`.
+- [x] Con `next start`: insertar una partida nueva y, pasados ≥60 s y una recarga extra, `/juegos` muestra el `plays` incrementado.
+- [x] Un juego sin partidas reales sigue mostrando `best_seed`/`plays_seed`.
+- [x] DevTools/servidor: la respuesta de `game_stats` tiene como máximo 1 fila por juego.
+- [x] `/juegos/[id]`, `/juegos/[id]/jugar` y `/salon` muestran los mismos récords que antes del cambio.
+- [x] `npx tsc --noEmit` sin errores; `npx eslint lib/games.ts app/juegos/page.tsx` sin errores nuevos.
+- [x] `specs/BACKLOG.md` tiene la entrada de `/salon`.
 
 ---
 
