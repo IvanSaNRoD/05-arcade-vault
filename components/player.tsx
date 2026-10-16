@@ -24,6 +24,7 @@ import {
 } from "@/lib/games/skins";
 import type { Game } from "@/lib/games";
 import { saveScore } from "@/lib/scores-client";
+import { useUser } from "@/lib/hooks/use-user";
 import { TouchControls } from "@/components/touch-controls";
 
 const PLAYER_NAME_KEY = "av_player_name";
@@ -94,7 +95,9 @@ export function Player({ game }: { game: Game }) {
     readStoredName,
     () => null,
   );
-  const name = typedName ?? storedName ?? "INVITADO";
+  // Con sesión, la partida la firma el username (SPEC 15) y no se puede editar.
+  const user = useUser();
+  const name = user?.username ?? typedName ?? storedName ?? "INVITADO";
 
   // Simulated gameplay (juegos sin motor real): corre solo en el cliente, así el
   // render del servidor (score 0) siempre coincide. El nivel sube en el mismo tick
@@ -150,10 +153,12 @@ export function Player({ game }: { game: Game }) {
     try {
       await saveScore(game.id, name, score);
       setSaved(true);
-      try {
-        window.localStorage.setItem(PLAYER_NAME_KEY, name);
-      } catch {
-        // localStorage bloqueado: el nombre no se recuerda
+      if (!user) {
+        try {
+          window.localStorage.setItem(PLAYER_NAME_KEY, name);
+        } catch {
+          // localStorage bloqueado: el nombre no se recuerda
+        }
       }
     } catch {
       setSaveError(true);
@@ -285,6 +290,7 @@ export function Player({ game }: { game: Game }) {
               <div className="input-row">
                 <input
                   value={name}
+                  readOnly={!!user}
                   onChange={(e) =>
                     setName(e.target.value.toUpperCase().slice(0, 10))
                   }

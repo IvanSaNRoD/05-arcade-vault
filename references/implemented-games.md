@@ -8,9 +8,9 @@ Keep it in sync with the `games` table: every new playable game added through
 `/spec-game` → `/spec-impl` must also be appended here (the generated spec
 includes a step for it).
 
-> The `games` table also contains 4 simulated placeholder rows from the SPEC 06
+> The `games` table also contains 3 simulated placeholder rows from the SPEC 06
 > seed that are **not** playable yet and are out of scope for this file:
-> `gloton`, `invasores`, `ranaria`, `duelo-pixel`.
+> `gloton`, `invasores`, `duelo-pixel` (`ranaria` was replaced by `frogger`).
 
 ## Catalog (playable)
 
@@ -20,6 +20,7 @@ includes a step for it).
 | `tetris`    | TETRIS    | PUZZLE   | magenta | `cover-tetro`  | 184220    | 31.8K      | Líneas             | SPEC 07 |
 | `arkanoid`  | ARKANOID  | ARCADE   | cyan    | `cover-bricks` | 28450     | 12.4K      | — (lives / hearts) | SPEC 08 |
 | `snake`     | SNAKE     | ARCADE   | green   | `cover-snake`  | 7820      | 9.1K       | Longitud           | SPEC 09 |
+| `frogger`   | FROGGER   | ARCADE   | green   | `cover-rana`   | 18900     | 6.4K       | — (lives / hearts) | SPEC 12 |
 
 - `secondaryLabel` comes from `GAME_ENGINES` in `lib/games/registry.ts`; `—`
   means the game uses lives/hearts (no override).
@@ -79,3 +80,19 @@ includes a step for it).
 - **Registry:** `snake: { component: SnakeGame, secondaryLabel: "Longitud" }`
 - **Spec:** `specs/09-adaptacion-snake-nextjs.md` (renamed from seed id
   `serpentina` / title `SERPENTINA`)
+
+### frogger — FROGGER
+
+- **Category:** ARCADE · **color:** green · **cover:** `cover-rana`
+- **short:** Cruza la carretera y el río sin convertirte en papilla.
+- **long:** Guía a tu rana a través de una carretera repleta de coches y un río
+  de troncos y tortugas flotantes. Llena las cinco bocas del otro lado para
+  completar la ronda; cada nivel acelera el tráfico y acorta el tiempo. Tres
+  vidas y mucho asfalto por delante.
+- **Engine:** `lib/games/frogger/engine.ts` (built from scratch, canvas
+  primitives, no sprites)
+- **React bridge:** `components/games/frogger-game.tsx`
+- **Registry:** `frogger: { component: FroggerGame }` (lives/hearts HUD, no
+  `touchControls` yet)
+- **Spec:** `specs/12-frogger-core.md` (replaces seed id `ranaria`; perf in
+  `specs/13-frogger-performance.md`)
