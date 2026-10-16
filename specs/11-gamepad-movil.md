@@ -101,27 +101,27 @@ Convenciones:
 
 ## Criterios de aceptación
 
-- [ ] `npx tsc --noEmit` y `npm run build` sin errores; `npm run lint` sin errores nuevos.
-- [ ] No quedan referencias a `TouchControlsLayout`, `variant` ni clases `.tc-*` (`grep` vacío).
-- [ ] Escritorio con ratón y ancho >720 px: no se ve el gamepad; los 4 juegos funcionan con teclado.
-- [ ] Ventana de escritorio ≤720 px: el gamepad se ve y funciona con ratón.
-- [ ] DevTools 375×667 táctil: el gamepad aparece bajo el CRT en los 4 juegos con la apariencia de `gamepad-neon.png` (carcasa, D-pad en cruz con gema, B cian a la izquierda de A magenta).
-- [ ] A 375 px no hay scroll horizontal.
-- [ ] Teclas del D-pad ≥44×44 px (46 px a ≤620 px); A/B ≥64 px.
-- [ ] Slots `null` se ven atenuados, no responden y no tienen glow: Asteroids `↓`; Arkanoid `↑` `↓` A B; Snake A B.
-- [ ] Leyendas bajo A/B: Asteroids `FUEGO`/`PROPULSAR`; Tetris `ROTAR`/`CAÍDA`; sin leyenda en slots `null`.
-- [ ] Asteroids: `←`/`→` giran mientras se mantienen; `↑` y `B` propulsan; `A` dispara; girar + propulsar + disparar a la vez con varios dedos funciona.
-- [ ] Asteroids: mantener `↑` y `B`, soltar uno → la nave sigue propulsando hasta soltar el otro.
-- [ ] Tetris: `←`/`→`/`↓` con repeat al mantener; `↑` y `A` rotan; `B` hard drop.
-- [ ] Arkanoid: `←`/`→` mueven la pala y se detiene al soltar.
-- [ ] Snake: el D-pad cambia la dirección.
-- [ ] Al pulsar una tecla física (flechas, Space) el slot correspondiente se ilumina y se apaga al soltarla.
-- [ ] Estado pulsado visible: tecla D-pad hundida con glow cian; A/B hundidos con `.ab-ring` visible.
-- [ ] La gema del hub pulsa; con `prefers-reduced-motion: reduce` queda estática.
-- [ ] Sin hover pegado tras tocar en móvil.
-- [ ] Soltar el dedo fuera del botón libera la tecla; SALIR con un botón pulsado no deja teclas pegadas.
-- [ ] Tocar el gamepad no hace scroll, zoom, menú contextual ni selección de texto.
-- [ ] Un juego sin motor (`/juegos/gloton/jugar`) no muestra gamepad.
+- [x] `npx tsc --noEmit` y `npm run build` sin errores; `npm run lint` sin errores nuevos.
+- [x] No quedan referencias a `TouchControlsLayout`, `variant` ni clases `.tc-*` (`grep` vacío).
+- [x] Escritorio con ratón y ancho >720 px: no se ve el gamepad; los 4 juegos funcionan con teclado.
+- [x] Ventana de escritorio ≤720 px: el gamepad se ve y funciona con ratón.
+- [x] DevTools 375×667 táctil: el gamepad aparece bajo el CRT en los 4 juegos con la apariencia de `gamepad-neon.png` (carcasa, D-pad en cruz con gema, B cian a la izquierda de A magenta).
+- [x] A 375 px no hay scroll horizontal.
+- [x] Teclas del D-pad ≥44×44 px (46 px a ≤620 px); A/B ≥64 px.
+- [x] Slots `null` se ven atenuados, no responden y no tienen glow: Asteroids `↓`; Arkanoid `↑` `↓` A B; Snake A B.
+- [x] Leyendas bajo A/B: Asteroids `FUEGO`/`PROPULSAR`; Tetris `ROTAR`/`CAÍDA`; sin leyenda en slots `null`.
+- [x] Asteroids: `←`/`→` giran mientras se mantienen; `↑` y `B` propulsan; `A` dispara; girar + propulsar + disparar a la vez con varios dedos funciona.
+- [x] Asteroids: mantener `↑` y `B`, soltar uno → la nave sigue propulsando hasta soltar el otro.
+- [x] Tetris: `←`/`→`/`↓` con repeat al mantener; `↑` y `A` rotan; `B` hard drop.
+- [x] Arkanoid: `←`/`→` mueven la pala y se detiene al soltar.
+- [x] Snake: el D-pad cambia la dirección.
+- [x] Al pulsar una tecla física (flechas, Space) el slot correspondiente se ilumina y se apaga al soltarla.
+- [x] Estado pulsado visible: tecla D-pad hundida con glow cian; A/B hundidos con `.ab-ring` visible.
+- [x] La gema del hub pulsa; con `prefers-reduced-motion: reduce` queda estática.
+- [x] Sin hover pegado tras tocar en móvil.
+- [x] Soltar el dedo fuera del botón libera la tecla; SALIR con un botón pulsado no deja teclas pegadas.
+- [x] Tocar el gamepad no hace scroll, zoom, menú contextual ni selección de texto.
+- [x] Un juego sin motor (`/juegos/gloton/jugar`) no muestra gamepad.
 
 ## Decisiones
 
