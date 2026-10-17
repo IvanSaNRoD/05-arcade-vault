@@ -14,6 +14,10 @@ La config de Auth no vive en la base de datos: no se puede aplicar con el MCP de
 | ----------------------- | ----- |
 | Minimum password length | `8`   |
 
+| Password requirements | Lowercase, uppercase letters, digits and symbols (ya activo) |
+
+`validatePassword` (`lib/actions/auth.ts`) replica las 4 clases; `weak_password` de Supabase se traduce al mismo mensaje.
+
 La server action `signUp` (SPEC 15) ya exige 8. Esto cierra el hueco de llamar a `/auth/v1/signup` directamente.
 
 ### Supabase → Authentication → Rate Limits
