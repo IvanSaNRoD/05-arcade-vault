@@ -1,6 +1,6 @@
 # SPEC 16 — Medidas de seguridad básicas
 
-> **Estado:** Aprobada
+> **Estado:** Implementada
 > **Depende de:** SPEC 04, SPEC 06, SPEC 15
 > **Fecha:** 2026-10-18
 > **Objetivo:** Cerrar el checklist de `references/security/checklist.md`: inserciones en `scores` validadas por RLS y ligadas al usuario, ajustes de Auth endurecidos, rutas de auth protegidas en el proxy y headers de seguridad en Next.js.
@@ -164,28 +164,28 @@ Pista en formularios (registro y nueva contraseña): placeholder "Mín. 8 · aA 
 
 ## Criterios de aceptación
 
-- [ ] `games` y `scores` con `relrowsecurity = true` (`execute_sql`).
-- [ ] `scores.user_id` existe, nullable, FK a `auth.users(id) on delete set null`.
-- [ ] No existe ninguna policy de `scores` con `WITH CHECK (true)`; `get_advisors` security sin `0024_permissive_rls_policy`.
-- [ ] Invitado guarda puntuación con nombre libre (p. ej. `AAA`) → fila con `user_id = null`.
-- [ ] Invitado con nombre igual a un username existente (en mayúsculas) → no se inserta; player muestra "▸ NOMBRE RESERVADO_ ELIGE OTRO".
-- [ ] Logueado guarda puntuación → fila con `user_id = auth.uid()` y `name = username`.
-- [ ] Insert vía API como `anon` con `user_id` no nulo → rechazado.
-- [ ] Insert vía API como `authenticated` con `name` distinto de su username o `user_id` ajeno → rechazado.
-- [ ] Insert con `score = -1` o `score = 10000001` → rechazado (anon y authenticated).
-- [ ] Leaderboard de `/juegos/[id]`, `/salon` y `best`/`plays` de `/juegos` siguen mostrando datos.
-- [ ] Signup vía API con contraseña de 7 caracteres → rechazado por Supabase.
-- [ ] Rate limit de signups = 10/h por IP en el dashboard (anotado en `docs/verificacion/16-seguridad.md`).
-- [ ] `curl -I` en `/` y `/juegos` (build de producción) devuelve los 4 headers con los valores de la tabla.
-- [ ] Login con Google y GitHub sigue funcionando con los headers activos.
-- [ ] Sin sesión, `/auth/nueva-contrasena` redirige a `/auth` desde el proxy.
-- [ ] Con sesión, `/auth` y `/auth/recuperar` redirigen a `/juegos`; la sesión no se pierde al redirigir.
-- [ ] `/auth/callback`, `/juegos/[id]/jugar` y `/salon` siguen accesibles sin sesión.
-- [ ] Registro o nueva contraseña con `abcdefgh` (sin mayúscula/dígito/símbolo) → "La contraseña necesita minúsculas, mayúsculas, números y símbolos." sin llamar a Supabase.
-- [ ] Registro con `Abcdef1!` pasa la validación.
-- [ ] `npm run build`: `/`, `/juegos` siguen con `Revalidate 1m`.
-- [ ] `npx tsc --noEmit` sin errores; `npx eslint` sobre los archivos tocados sin errores nuevos.
-- [ ] `docs/verificacion/16-seguridad.md`, entradas de `specs/BACKLOG.md` y checklist actualizados.
+- [x] `games` y `scores` con `relrowsecurity = true` (`execute_sql`).
+- [x] `scores.user_id` existe, nullable, FK a `auth.users(id) on delete set null`.
+- [x] No existe ninguna policy de `scores` con `WITH CHECK (true)`; `get_advisors` security sin `0024_permissive_rls_policy`.
+- [x] Invitado guarda puntuación con nombre libre (p. ej. `AAA`) → fila con `user_id = null`.
+- [x] Invitado con nombre igual a un username existente (en mayúsculas) → no se inserta; player muestra "▸ NOMBRE RESERVADO_ ELIGE OTRO".
+- [x] Logueado guarda puntuación → fila con `user_id = auth.uid()` y `name = username`.
+- [x] Insert vía API como `anon` con `user_id` no nulo → rechazado.
+- [x] Insert vía API como `authenticated` con `name` distinto de su username o `user_id` ajeno → rechazado.
+- [x] Insert con `score = -1` o `score = 10000001` → rechazado (anon y authenticated).
+- [x] Leaderboard de `/juegos/[id]`, `/salon` y `best`/`plays` de `/juegos` siguen mostrando datos.
+- [x] Signup vía API con contraseña de 7 caracteres → rechazado por Supabase.
+- [x] Rate limit de signups = 10/h por IP en el dashboard (anotado en `docs/verificacion/16-seguridad.md`).
+- [x] `curl -I` en `/` y `/juegos` (build de producción) devuelve los 4 headers con los valores de la tabla.
+- [x] Login con Google y GitHub sigue funcionando con los headers activos.
+- [x] Sin sesión, `/auth/nueva-contrasena` redirige a `/auth` desde el proxy.
+- [x] Con sesión, `/auth` y `/auth/recuperar` redirigen a `/juegos`; la sesión no se pierde al redirigir.
+- [x] `/auth/callback`, `/juegos/[id]/jugar` y `/salon` siguen accesibles sin sesión.
+- [x] Registro o nueva contraseña con `abcdefgh` (sin mayúscula/dígito/símbolo) → "La contraseña necesita minúsculas, mayúsculas, números y símbolos." sin llamar a Supabase.
+- [x] Registro con `Abcdef1!` pasa la validación.
+- [x] `npm run build`: `/`, `/juegos` siguen con `Revalidate 1m`.
+- [x] `npx tsc --noEmit` sin errores; `npx eslint` sobre los archivos tocados sin errores nuevos.
+- [x] `docs/verificacion/16-seguridad.md`, entradas de `specs/BACKLOG.md` y checklist actualizados.
 
 ---
 
