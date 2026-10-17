@@ -78,7 +78,10 @@ export function Player({ game }: { game: Game }) {
   const [typedName, setName] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState(false);
+  // "reserved": RLS rechazó la fila (42501), p. ej. nombre de un usuario registrado (SPEC 16).
+  const [saveError, setSaveError] = useState<"generic" | "reserved" | null>(
+    null,
+  );
   const scoreRef = useRef(0);
   const engineRef = useRef<GameEngineHandle>(null);
   const skin = useSyncExternalStore(
@@ -140,7 +143,7 @@ export function Player({ game }: { game: Game }) {
     setOver(false);
     setSaved(false);
     setSaving(false);
-    setSaveError(false);
+    setSaveError(null);
   };
 
   const handleSaveScore = async () => {
@@ -149,9 +152,9 @@ export function Player({ game }: { game: Game }) {
       return;
     }
     setSaving(true);
-    setSaveError(false);
+    setSaveError(null);
     try {
-      await saveScore(game.id, name, score);
+      await saveScore(game.id, name, score, user?.id ?? null);
       setSaved(true);
       if (!user) {
         try {
@@ -160,8 +163,10 @@ export function Player({ game }: { game: Game }) {
           // localStorage bloqueado: el nombre no se recuerda
         }
       }
-    } catch {
-      setSaveError(true);
+    } catch (e) {
+      setSaveError(
+        (e as { code?: string }).code === "42501" ? "reserved" : "generic",
+      );
     } finally {
       setSaving(false);
     }
@@ -310,7 +315,9 @@ export function Player({ game }: { game: Game }) {
             )}
             {saveError && (
               <div className="toast-saved text-magenta">
-                ▸ ERROR AL GUARDAR_ INTÉNTALO DE NUEVO
+                {saveError === "reserved"
+                  ? "▸ NOMBRE RESERVADO_ ELIGE OTRO"
+                  : "▸ ERROR AL GUARDAR_ INTÉNTALO DE NUEVO"}
               </div>
             )}
             <div className="actions">
