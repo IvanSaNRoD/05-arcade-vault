@@ -149,7 +149,7 @@ function SignUpForm({ onDone }: { onDone: () => void }) {
           name="password"
           type="password"
           autoComplete="new-password"
-          placeholder="Mínimo 8 caracteres"
+          placeholder="Mín. 8 · aA · 0-9 · símbolo"
           minLength={8}
           required
         />
@@ -293,7 +293,7 @@ export function NewPasswordForm() {
             name="password"
             type="password"
             autoComplete="new-password"
-            placeholder="Mínimo 8 caracteres"
+            placeholder="Mín. 8 · aA · 0-9 · símbolo"
             minLength={8}
             required
           />
