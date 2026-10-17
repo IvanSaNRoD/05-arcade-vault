@@ -1,6 +1,6 @@
 # SPEC 16 — Medidas de seguridad básicas
 
-> **Estado:** Borrador
+> **Estado:** Aprobada
 > **Depende de:** SPEC 04, SPEC 06, SPEC 15
 > **Fecha:** 2026-10-18
 > **Objetivo:** Cerrar el checklist de `references/security/checklist.md`: inserciones en `scores` validadas por RLS y ligadas al usuario, ajustes de Auth endurecidos y headers de seguridad en Next.js.
