@@ -15,12 +15,16 @@ export type OAuthProvider = "google" | "github";
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const USERNAME_REGEX = /^[a-z0-9_]{3,16}$/;
 const MIN_PASSWORD = 8;
+// Mismas clases que exige Supabase (Password requirements, SPEC 16).
+const PASSWORD_CLASSES = [/[a-z]/, /[A-Z]/, /[0-9]/, /[!@#$%^&*()_+\-=[\]{};'\\:"|<>?,./`~]/];
+const WEAK_PASSWORD = "La contraseña necesita minúsculas, mayúsculas, números y símbolos.";
 
 const ERROR_MESSAGES: Record<string, string> = {
   invalid_credentials: "Correo o contraseña incorrectos.",
   email_not_confirmed: "Confirma tu correo antes de entrar.",
   user_already_exists: "Ya existe una cuenta con ese correo.",
   over_email_send_rate_limit: "Demasiados correos enviados. Prueba en un rato.",
+  weak_password: WEAK_PASSWORD,
 };
 
 const fail = (error: string): AuthState => ({ status: "error", error });
@@ -40,9 +44,9 @@ function validateEmail(email: string) {
 }
 
 function validatePassword(password: string) {
-  return password.length >= MIN_PASSWORD
-    ? null
-    : `La contraseña debe tener al menos ${MIN_PASSWORD} caracteres.`;
+  if (password.length < MIN_PASSWORD)
+    return `La contraseña debe tener al menos ${MIN_PASSWORD} caracteres.`;
+  return PASSWORD_CLASSES.every((re) => re.test(password)) ? null : WEAK_PASSWORD;
 }
 
 export async function signUp(_prev: AuthState, formData: FormData): Promise<AuthState> {

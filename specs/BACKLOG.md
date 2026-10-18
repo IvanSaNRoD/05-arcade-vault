@@ -76,9 +76,9 @@ Detectado durante SPEC 15.
 
 ## 7. Ligar `scores` a `auth.users`
 
-**Prioridad:** media.
+**Prioridad:** baja (inserción resuelta en SPEC 16).
 
-Con SPEC 15 una partida con sesión guarda `name = username`, pero `scores` no tiene `user_id`: cualquiera puede escribir ese mismo nombre como invitado. Añadir `scores.user_id` (nullable para invitados) + RLS (`user_id = auth.uid()` al insertar) y decidir cómo se muestra en leaderboard/salón.
+~~Con SPEC 15 una partida con sesión guarda `name = username`, pero `scores` no tiene `user_id`: cualquiera puede escribir ese mismo nombre como invitado.~~ SPEC 16 añadió `scores.user_id` y policies de insert por rol (invitado no puede usar un username). Queda: decidir cómo se distinguen en leaderboard/salón las puntuaciones de usuarios registrados. Las 4 filas previas tienen `user_id = null`.
 
 Detectado durante SPEC 15.
 
@@ -101,3 +101,13 @@ Detectado durante SPEC 15.
 Tras iniciar sesión siempre se aterriza en `/juegos`. `/auth/callback` ya acepta `next` (solo rutas internas); faltaría propagarlo desde los enlaces a `/auth` y desde `signIn`/`signInWithProvider`.
 
 Detectado durante SPEC 15.
+
+---
+
+## 10. Leaked Password Protection
+
+**Prioridad:** baja.
+
+`get_advisors` avisa `auth_leaked_password_protection`: Supabase no comprueba contraseñas contra HaveIBeenPwned. La opción (Auth → Providers → Email → "Prevent use of leaked passwords") solo existe en plan Pro; el proyecto es Free. Activarla si se cambia de plan.
+
+Detectado durante SPEC 16.
