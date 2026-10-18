@@ -12,7 +12,7 @@ Playable games: Asteroids, Tetris, Arkanoid, Snake (ported from vanilla prototyp
 
 ## Workflow (Spec Driven Design)
 
-Write a spec before implementing features. Specs live in `specs/NN-slug.md` (01–14; state in each file's `Estado`/`Status` header); out-of-scope issues go to `specs/BACKLOG.md`; manual verification notes in `docs/verificacion/`. Agent drafts live in `specs/game-jam/`, `specs/skins/`, `specs/mobile/`, `specs/performance/`.
+Write a spec before implementing features. Specs live in `specs/NN-slug.md` (01–14; state in each file's `Estado`/`Status` header); out-of-scope issues go to `specs/BACKLOG.md`; manual verification notes in `docs/verificacion/`. Agent drafts live in `specs/game-jam/`, `specs/skins/`, `specs/mobile/`, `specs/performance/`, `specs/security/`.
 
 ### Skills
 
@@ -21,6 +21,7 @@ Write a spec before implementing features. Specs live in `specs/NN-slug.md` (01�
 - `/spec-game <name>` — `/spec` specialized for a new game + leaderboard (follows `.claude/skills/spec-game/porting-guide.md`). Use before porting any game.
 - `/spec-impl-game <NN-slug>` — `/spec-impl` flow, then `skin-designer` → `mobile-porter` on the new game.
 - `/performance-game <id> [re-auditar]` — `game-performance-booster` → `game-performance-implementation`, sequential.
+- `/security-audit [db|app|todo] [re-auditar]` — runs `security-auditor`; audit only, fixes via `/spec-impl`.
 
 Definitions: `.claude/skills/<name>/SKILL.md`.
 
@@ -34,6 +35,7 @@ Definitions in `.claude/agents/<name>.md` (read for details); persistent history
 - `mobile-porter` — audits games vs SPEC 11 and routes at 375/768 px; drafts `specs/mobile/`.
 - `game-performance-booster` — static perf audit of a game vs SPEC 13; drafts `specs/performance/<id>-performance.md`.
 - `game-performance-implementation` — implements the pending perf spec on branch `perf-<id>`, runs eslint + tsc, never commits.
+- `security-auditor` — audits Supabase (MCP, read-only) + app (auth, secrets, headers/XSS, `npm audit`) vs SPEC 15/16 baseline; writes report + draft spec in `specs/security/` (ledger `STATUS.md`).
 
 `specs/performance/STATUS.md` is the shared ledger of both perf agents (`generado` → `en-curso` → `implementado` | `bloqueado` · `cumple`).
 
