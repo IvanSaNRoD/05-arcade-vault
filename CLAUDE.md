@@ -59,7 +59,7 @@ Data (Supabase, tables `games` + `scores`, view `game_stats`):
 - `lib/games.ts` — `getGames/getGame`; `best`/`plays` from view `game_stats` (MAX/COUNT of scores, SPEC 14), falling back to `best_seed`/`plays_seed`. Types in `lib/games-types.ts`; `lib/games-fallback.ts` = local catalog when Supabase is down (playable, no score save). `lib/home.ts` — home data.
 - `lib/scores.ts` — `getTopScores` (server). `lib/scores-client.ts` — `saveScore` (client insert).
 - Pages with data use ISR: `export const revalidate = 60`.
-- Supabase MCP configured in `.mcp.json`.
+- Supabase MCP configured in `.mcp.json` — **dev project only**. Production lives in a separate org with no MCP/Claude access; prod SQL is in `supabase/prod/` and applied by hand (runbook: `docs/despliegue/supabase-produccion.md`). Schema changes: apply in dev via MCP, then add `supabase/prod/NN-slug.sql`.
 
 Contact: server action `lib/actions/contact.ts` sends email via Resend.
 
