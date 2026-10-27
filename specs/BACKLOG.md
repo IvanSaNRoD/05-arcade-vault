@@ -116,8 +116,8 @@ Detectado durante SPEC 16.
 
 ## 11. Historial de migraciones de dev desalineado
 
-**Prioridad:** baja.
+**Resuelto** con migraciones versionadas en `supabase/migrations/` + Supabase CLI en prod (runbook `docs/despliegue/supabase-produccion.md` §1 y §5).
 
-La migración `create_games_and_scores` siembra ids antiguos (`caida`, `bloque-buster`, `serpentina`, `ranaria`); en dev se renombraron fuera de migraciones (`tetris`, `arkanoid`, `snake`, `frogger`). Reproducir el historial no da el estado real: producción usa el script consolidado `supabase/prod/01-schema.sql` + `02-seed-games.sql`. Opcional: adoptar Supabase CLI (`supabase db diff`/`db push`) con migraciones versionadas en el repo.
+~~La migración `create_games_and_scores` siembra ids antiguos (`caida`, `bloque-buster`, `serpentina`, `ranaria`); en dev se renombraron fuera de migraciones (`tetris`, `arkanoid`, `snake`, `frogger`). Reproducir el historial no da el estado real.~~ La baseline `20261026000000_baseline.sql` consolida el estado actual; el historial antiguo de dev se deja como está (la CLI nunca se enlaza a dev).
 
 Detectado durante la preparación de producción.

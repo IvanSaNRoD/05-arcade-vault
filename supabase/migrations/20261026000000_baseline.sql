@@ -1,9 +1,11 @@
--- Arcade Vault — esquema de producción.
--- Equivale al estado actual de dev (migraciones 20260921155634 … 20261017232721,
--- sin el seed antiguo ni el drop policy intermedio). Ejecutar UNA vez en el
--- SQL Editor del proyecto de producción, sobre una base vacía.
+-- Arcade Vault — migración base (baseline).
+-- Consolida el estado de dev a 2026-10-26: tablas games/scores/profiles, RLS,
+-- policies, vista game_stats, trigger handle_new_user y catálogo de 8 juegos.
+-- Dev ya tiene este estado (su historial MCP previo no se reproduce, BACKLOG #11).
+-- Prod se montó con estos mismos scripts a mano: ahí se marca como aplicada con
+--   npx supabase migration repair --status applied 20261026000000
+-- Un proyecto vacío nuevo la aplica con `npx supabase db push`.
 
-begin;
 
 -- Tablas -------------------------------------------------------------------
 
@@ -125,4 +127,14 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
-commit;
+-- Catálogo de juegos -------------------------------------------------------
+
+insert into public.games (id, title, short, long, category, cover, color, best_seed, plays_seed) values
+  ('arkanoid', 'ARKANOID', 'Rebota la pelota y destruye muros de neón.', 'Pilota una nave-paleta y rebota un núcleo de plasma para pulverizar muros de bloques cromáticos. Cada nivel reorganiza la grilla en patrones imposibles. ¿Hasta dónde llegará tu racha?', 'ARCADE', 'cover-bricks', 'cyan', 28450, '12.4K'),
+  ('asteroids', 'ASTEROIDS', 'Pulveriza asteroides en gravedad cero.', 'Tu nave triangular flota en vacío absoluto. Dispara y rota para dividir rocas en fragmentos cada vez más pequeños. Cuidado con los OVNIs en el horizonte.', 'SHOOTER', 'cover-rocas', 'yellow', 41200, '15.6K'),
+  ('duelo-pixel', 'DUELO PIXEL', 'Dos paletas. Una pelota. Reflejos máximos.', 'El duelo más puro: dos paletas verticales se enfrentan por rebotar una pelota luminosa. Modo solitario contra la CPU o partida local a dos jugadores.', 'VERSUS', 'cover-duelo', 'cyan', 24, '4.2K'),
+  ('frogger', 'FROGGER', 'Cruza la carretera y el río sin convertirte en papilla.', 'Guía a tu rana a través de una carretera repleta de coches y un río de troncos y tortugas flotantes. Llena las cinco bocas del otro lado para completar la ronda; cada nivel acelera el tráfico y acorta el tiempo. Tres vidas y mucho asfalto por delante.', 'ARCADE', 'cover-rana', 'green', 18900, '6.4K'),
+  ('gloton', 'GLOTÓN', 'Devora puntos y escapa de los fantasmas.', 'Un círculo glotón patrulla un laberinto coleccionando puntos luminosos. Cuatro espectros lo persiguen, pero cada cierto tiempo aparece una píldora que invierte los papeles.', 'ARCADE', 'cover-glot', 'yellow', 96400, '27.2K'),
+  ('invasores', 'INVASORES', 'Defiende el planeta de filas alienígenas.', 'Olas de pixeles hostiles descienden formación tras formación. Mueve tu cañón en horizontal y abre fuego con precisión, antes de que toquen la superficie.', 'SHOOTER', 'cover-invaders', 'green', 54190, '18.0K'),
+  ('snake', 'SNAKE', 'Crece sin morder tu propia cola.', 'Una serpiente de luz recorre la grilla buscando núcleos magenta. Cada bocado la alarga y la hace más veloz. Un movimiento en falso y se devora a sí misma.', 'ARCADE', 'cover-snake', 'green', 7820, '9.1K'),
+  ('tetris', 'TETRIS', 'Encaja las piezas antes de que el techo te aplaste.', 'Piezas geométricas descienden desde la oscuridad. Rótalas, encástralas y limpia líneas para sobrevivir. La velocidad aumenta sin piedad cada 10 líneas.', 'PUZZLE', 'cover-tetro', 'magenta', 184220, '31.8K');

@@ -15,7 +15,11 @@
       "mcp__supabase__merge_branch",
       "mcp__supabase__reset_branch",
       "mcp__supabase__rebase_branch",
-      "mcp__supabase__deploy_edge_function"
+      "mcp__supabase__deploy_edge_function",
+      "Bash(npx supabase:*)",
+      "Bash(supabase:*)",
+      "PowerShell(npx supabase:*)",
+      "PowerShell(supabase:*)"
     ]
   },
   "hooks": {

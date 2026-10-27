@@ -1,4 +1,4 @@
--- Arcade Vault — verificación (solo lectura). Ejecutar en producción tras 01 y 02.
+-- Arcade Vault — verificación (solo lectura). Ejecutar en el SQL Editor tras `npx supabase db push`.
 -- Resultado esperado (igual que dev) en docs/despliegue/supabase-produccion.md.
 
 select json_build_object(

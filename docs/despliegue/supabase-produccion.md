@@ -13,19 +13,33 @@
    - `.claude/settings.json`: `permissions.deny` de las tools de cuenta/proyecto/branching por si se reactivan.
 4. `.env.local` sigue apuntando a **dev**. Las claves de prod solo viven en el hosting.
 
-## 1. Esquema y datos (SQL Editor de prod)
+## 1. Esquema y datos (migraciones)
 
-Ejecutar en orden, cada archivo completo:
+Las migraciones viven en `supabase/migrations/` y se aplican en prod con Supabase CLI (`npx supabase`), **siempre ejecutada por una persona** (Claude la tiene denegada en `.claude/settings.json`; desde Claude Code usar el prefijo `!`).
 
-| Archivo                           | Qué hace                                                                                                                   |
-| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `supabase/prod/01-schema.sql`     | Tablas `games`/`scores`/`profiles`, RLS, 5 policies, vista `game_stats`, función `handle_new_user` + trigger. Transacción. |
-| `supabase/prod/02-seed-games.sql` | 8 filas de `games` (copia de dev). Sin scores ni usuarios.                                                                 |
-| `supabase/prod/03-verify.sql`     | Solo lectura. Comparar con el resultado esperado de abajo.                                                                 |
+| Archivo                                           | Qué hace                                                                                                                                    |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `supabase/migrations/20261026000000_baseline.sql` | Estado de dev a 2026-10-26: tablas `games`/`scores`/`profiles`, RLS, 5 policies, vista `game_stats`, `handle_new_user` + trigger, 8 juegos. |
+| `supabase/migrations/<version>_<slug>.sql`        | Cambios posteriores (ver §5).                                                                                                               |
+| `supabase/verify.sql`                             | Solo lectura. Comparar con el resultado esperado de abajo.                                                                                  |
 
-No se reproduce el historial de migraciones de dev: la migración 1 siembra ids antiguos (`caida`, `bloque-buster`…) que en dev se renombraron a mano. Los scripts reflejan el estado **actual** de dev.
+No se reproduce el historial de migraciones de dev: la migración 1 siembra ids antiguos (`caida`, `bloque-buster`…) que en dev se renombraron a mano. La baseline refleja el estado **actual** de dev.
 
-Resultado esperado de `03-verify.sql` en prod (en dev da lo mismo salvo `scores: 4`, `profiles: 3`):
+### 1b. Alta de la CLI (una sola vez, por máquina)
+
+Prod ya se montó a mano con el contenido de la baseline, así que se marca como aplicada sin ejecutarla:
+
+```bash
+! npx supabase login
+! npx supabase link --project-ref <prod-ref>      # pide la contraseña de la BD de prod
+! npx supabase migration repair --status applied 20261026000000
+! npx supabase migration list                     # 20261026000000 en Local y Remote
+```
+
+- La CLI se enlaza **solo a prod**, nunca a dev (el historial de dev no coincide con los archivos del repo). El ref enlazado queda en `supabase/.temp/` (gitignored).
+- Proyecto de prod nuevo y vacío: `link` + `npx supabase db push` (aplica la baseline), sin `repair`.
+
+Resultado esperado de `verify.sql` en prod (en dev da lo mismo salvo `scores: 4`, `profiles: 3`):
 
 ```json
 {
@@ -97,7 +111,7 @@ El build hace lecturas en `generateStaticParams` (`lib/supabase/static.ts`): las
 
 ## 4. Comprobación final
 
-- [ ] `03-verify.sql` coincide con el resultado esperado.
+- [ ] `supabase/verify.sql` coincide con el resultado esperado.
 - [ ] Prod → Advisors → Security: solo `auth_leaked_password_protection` (aceptado, plan Free).
 - [ ] `/juegos` lista 8 juegos; `/juegos/tetris` carga sin leaderboard (vacío).
 - [ ] Partida sin sesión: guarda score anónimo y aparece en el leaderboard.
@@ -106,8 +120,12 @@ El build hace lecturas en `generateStaticParams` (`lib/supabase/static.ts`): las
 - [ ] Contraseña de 7 caracteres vía `curl` a `/auth/v1/signup` devuelve `weak_password` (ver `16-seguridad.md`, con URL/key de prod).
 - [ ] Recuperar contraseña: el enlace lleva a `/auth/nueva-contrasena` en el dominio de prod (no localhost).
 
-## 5. Cambios futuros de esquema
+## 5. Cambios futuros (esquema y datos de catálogo)
 
-1. Aplicar en dev con MCP (`apply_migration`) y verificar.
-2. Guardar el mismo SQL como `supabase/prod/NN-<slug>.sql`.
-3. Ejecutarlo a mano en el SQL Editor de prod.
+Toda modificación de la BD de dev (DDL, policies, funciones, filas de `games`) va como migración. Nunca `execute_sql` para escribir ni cambios a mano en el dashboard.
+
+1. **Claude** aplica en dev con MCP `apply_migration` (`<slug>`) y verifica.
+2. **Claude** lee la versión asignada con `list_migrations` y guarda el mismo SQL en `supabase/migrations/<version>_<slug>.sql`.
+3. Commit junto al código que lo usa.
+4. **Persona**, tras el merge: `! npx supabase db push --dry-run` (revisar qué aplica) y luego `! npx supabase db push`.
+5. Si cambia algo de lo que comprueba, ejecutar `supabase/verify.sql` en prod (y actualizar el resultado esperado de §1).
