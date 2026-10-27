@@ -111,3 +111,13 @@ Detectado durante SPEC 15.
 `get_advisors` avisa `auth_leaked_password_protection`: Supabase no comprueba contraseñas contra HaveIBeenPwned. La opción (Auth → Providers → Email → "Prevent use of leaked passwords") solo existe en plan Pro; el proyecto es Free. Activarla si se cambia de plan.
 
 Detectado durante SPEC 16.
+
+---
+
+## 11. Historial de migraciones de dev desalineado
+
+**Resuelto** con migraciones versionadas en `supabase/migrations/` + Supabase CLI en prod (runbook `docs/despliegue/supabase-produccion.md` §1 y §5).
+
+~~La migración `create_games_and_scores` siembra ids antiguos (`caida`, `bloque-buster`, `serpentina`, `ranaria`); en dev se renombraron fuera de migraciones (`tetris`, `arkanoid`, `snake`, `frogger`). Reproducir el historial no da el estado real.~~ La baseline `20261026000000_baseline.sql` consolida el estado actual; el historial antiguo de dev se deja como está (la CLI nunca se enlaza a dev).
+
+Detectado durante la preparación de producción.
